@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-08T09:25:23.577Z</updated>
+  <updated>2020-05-08T11:05:49.913Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>test_my_site</title>
-    <link href="http://yoursite.com/2020/05/08/test-my-site/"/>
-    <id>http://yoursite.com/2020/05/08/test-my-site/</id>
+    <title>开篇！初心与目标</title>
+    <link href="http://yoursite.com/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/"/>
+    <id>http://yoursite.com/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</id>
     <published>2020-05-08T08:47:00.000Z</published>
-    <updated>2020-05-08T09:25:23.577Z</updated>
+    <updated>2020-05-08T11:05:49.913Z</updated>
     
     <summary type="html">
     
@@ -29,8 +29,8 @@
       
         
         
-          &lt;h1 id=&quot;这是我的第一个博客&quot;&gt;&lt;a href=&quot;#这是我的第一个博客&quot; class=&quot;headerlink&quot; title=&quot;这是我的第一个博客&quot;&gt;&lt;/a&gt;这是我的第一个博客&lt;/h1&gt;&lt;p&gt;你要来试试看嘛a a a bvvbadss&lt;/p&gt;
-&lt;figure
+          &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;建立此博客的目的是为了记录一些平常学习中的所学所感。&lt;/p&gt;
+&lt;h1 id=&quot;Flag&quot;&gt;&lt;a href=&quot;#Flag&quot;
         
       
     
@@ -39,29 +39,6 @@
     
     
       <category term="测试" scheme="http://yoursite.com/tags/%E6%B5%8B%E8%AF%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="http://yoursite.com/2020/05/08/hello-world/"/>
-    <id>http://yoursite.com/2020/05/08/hello-world/</id>
-    <published>2020-05-08T08:27:37.438Z</published>
-    <updated>2020-05-08T08:27:37.438Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a
-        
-      
-    
-    </summary>
-    
-    
     
   </entry>
   

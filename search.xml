@@ -1,35 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>test_my_site</title>
-    <url>/2020/05/08/test-my-site/</url>
-    <content><![CDATA[<h1 id="这是我的第一个博客"><a href="#这是我的第一个博客" class="headerlink" title="这是我的第一个博客"></a>这是我的第一个博客</h1><p>你要来试试看嘛a a a bvvbadss</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> i = <span class="number">1</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i <span class="keyword">in</span> nums)</span><br></pre></td></tr></table></figure>
-
-<p>menu:<br>  主页: /</p>
-<h1 id="归档-archives"><a href="#归档-archives" class="headerlink" title="归档: /archives"></a>归档: /archives</h1><p>  分类: /categories<br>  标签: /tags</p>
-<h1 id="旅行-tags-旅行"><a href="#旅行-tags-旅行" class="headerlink" title="旅行: /tags/旅行/"></a>旅行: /tags/旅行/</h1><h1 id="摄影-http-shenyu-vip-lofter-com"><a href="#摄影-http-shenyu-vip-lofter-com" class="headerlink" title="摄影: http://shenyu-vip.lofter.com"></a>摄影: <a href="http://shenyu-vip.lofter.com" target="_blank" rel="noopener">http://shenyu-vip.lofter.com</a></h1><p>  关于我: /2019/about</p>
+    <title>开篇！初心与目标</title>
+    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
+<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
+<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
 ]]></content>
       <tags>
         <tag>测试</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2020/05/08/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-]]></content>
   </entry>
 </search>
