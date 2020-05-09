@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-08T11:05:49.913Z</updated>
+  <updated>2020-05-09T02:44:36.665Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>纯JS瀑布流效果与动态加载</title>
+    <link href="http://yoursite.com/2020/05/09/%E7%80%91%E5%B8%83%E6%B5%81%E6%95%88%E6%9E%9C/"/>
+    <id>http://yoursite.com/2020/05/09/%E7%80%91%E5%B8%83%E6%B5%81%E6%95%88%E6%9E%9C/</id>
+    <published>2020-05-09T01:06:04.000Z</published>
+    <updated>2020-05-09T02:44:36.665Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;p&gt;瀑布流效果的特征是，里面的图片&lt;strong&gt;等宽不等高&lt;/strong&gt;，并按列向下排列。同时，也可以拥有&lt;strong&gt;动态加载&lt;/strong&gt;的功能。&lt;/p&gt;
+&lt;p&gt;可以参考&lt;a href=&quot;https://www.mogu.com/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;蘑菇街&lt;/a&gt;首页的效果&lt;/p&gt;
+&lt;p&gt;在社区中也有许多的瀑布流库可以使用，本文主要采用&lt;strong&gt;纯JS&lt;/strong&gt;实现。&lt;/p&gt;
+&lt;h1 id=&quot;思路&quot;&gt;&lt;a href=&quot;#思路&quot; class=&quot;headerlink&quot; title=&quot;思路&quot;&gt;&lt;/a&gt;思路&lt;/h1&gt;&lt;p&gt;主要是通过&lt;strong&gt;绝对布局&lt;/strong&gt;的方法对每一个图片盒子进行定位，通过JS计算出每一张图片对应的&lt;strong&gt;left和top属性&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;计算出每一个图片盒子的定位后，通过监听&lt;strong&gt;滚轮事件&lt;/strong&gt;，&lt;strong&gt;判断&lt;/strong&gt;是否要进行动态加载新的图片&lt;/p&gt;
+&lt;h1 id=&quot;步骤&quot;&gt;&lt;a href=&quot;#步骤&quot; class=&quot;headerlink&quot; title=&quot;步骤&quot;&gt;&lt;/a&gt;步骤&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;首先搭建基本的html结构&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;以下就是一个图片盒子的基本单元，我们复制40次这个单元以充满首屏。&lt;/p&gt;
+&lt;figure class=&quot;highlight html&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;body&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;class&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;box&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;img&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;src&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;./images/0.jpg&quot;&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;alt&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;body&lt;/span&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="瀑布流 JS" scheme="http://yoursite.com/tags/%E7%80%91%E5%B8%83%E6%B5%81-JS/"/>
+    
+  </entry>
   
   <entry>
     <title>开篇！初心与目标</title>

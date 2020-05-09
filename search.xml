@@ -11,4 +11,99 @@
         <tag>测试</tag>
       </tags>
   </entry>
+  <entry>
+    <title>纯JS瀑布流效果与动态加载</title>
+    <url>/2020/05/09/%E7%80%91%E5%B8%83%E6%B5%81%E6%95%88%E6%9E%9C/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>瀑布流效果的特征是，里面的图片<strong>等宽不等高</strong>，并按列向下排列。同时，也可以拥有<strong>动态加载</strong>的功能。</p>
+<p>可以参考<a href="https://www.mogu.com/" target="_blank" rel="noopener">蘑菇街</a>首页的效果</p>
+<p>在社区中也有许多的瀑布流库可以使用，本文主要采用<strong>纯JS</strong>实现。</p>
+<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>主要是通过<strong>绝对布局</strong>的方法对每一个图片盒子进行定位，通过JS计算出每一张图片对应的<strong>left和top属性</strong></p>
+<p>计算出每一个图片盒子的定位后，通过监听<strong>滚轮事件</strong>，<strong>判断</strong>是否要进行动态加载新的图片</p>
+<h1 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h1><ul>
+<li><p><strong>首先搭建基本的html结构</strong></p>
+<p>以下就是一个图片盒子的基本单元，我们复制40次这个单元以充满首屏。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./images/0.jpg"</span> <span class="attr">alt</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+</li>
+<li><p><strong>css中为图片限定尺寸并使用绝对定位</strong></p>
+<p>去掉所有的padding和margin</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">*&#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">padding</span>:<span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>把body设置为relative，使得图片盒子的绝对定位是基于body的</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>: relative</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.box</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后为每一个图片限定尺寸，高度设为auto是为了让图片自适应，不要忘记原则是<strong>图片等宽不等高</strong></p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.box</span> <span class="selector-tag">img</span>&#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">230px</span>;</span><br><span class="line">    <span class="attribute">height</span>: auto;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>最重要的JS部分！</strong></p>
+<ul>
+<li><p>首先确定浏览器的显示区域内，一行能放多少个图片盒子。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 列数 = 页宽 / 每一个图片盒子的宽度，记得要进行取整</span></span><br><span class="line"> <span class="keyword">let</span> pageWidth = <span class="keyword">this</span>.document.body.clientWidth</span><br><span class="line"> <span class="keyword">let</span> boxWidth = <span class="number">230</span></span><br><span class="line"> <span class="keyword">let</span> colNum = <span class="built_in">Math</span>.floor(pageWidth / (boxWidth + <span class="number">10</span>))</span><br></pre></td></tr></table></figure>
+
+<p>此时我们得到了在当前浏览器显示区域的大小内，我们能够显示<em>colNum</em>列</p>
+</li>
+<li><p>我们先排第一行元素，假设我们算出来当前的<em>colNum</em>为4</p>
+<p>如下图所示，其中gap为两张图片之间的空隙：</p>
+<p><img src="https://i.loli.net/2020/05/09/rgqvVwUpJISHMZO.png" alt="图片1.png"></p>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>我们可以轻易的得出 第一行的图片top都为0
+
+第一张图片的 left = （boxWidth  +  gap）*0
+
+第二张图片的 left = （boxWidth  +  gap）*1
+
+第三张图片的 left = （boxWidth  +  gap）*2
+
+第四张图片的 left = （boxWidth  +  gap）*3
+
+我们获取所有的box形成boxs数组，因此我们可以对第一行进行排列：
+
+其中的*colHeigth*是一个数组，维护每一列的高度。每一列的高度=这一列所有图片的总和加上间隙。
+
+这个*colHeight*数组是后续图片排序的重要依据！
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; boxs.length; i++) &#123;</span><br><span class="line">          <span class="comment">// 先排列第一行</span></span><br><span class="line">          <span class="keyword">if</span> (i &lt; colNum) &#123;</span><br><span class="line">              boxs[i].style.cssText = <span class="string">`left:<span class="subst">$&#123;i * (boxWidth + gap)&#125;</span>px`</span></span><br><span class="line">              colHeight.push(boxs[i].clientHeight)</span><br><span class="line">        &#125;</span><br><span class="line">          ...</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></code></pre><ul>
+<li><p>当我们需要排列第五张图片时</p>
+<p>第五张图片需要放在哪呢？放在<strong>当前高度最小的所在列的下面</strong></p>
+<p>如下图，在第一行排完后，第三张图片所在列的高度最小，故第五张图片就排在第三列的下面！</p>
+<p><img src="https://i.loli.net/2020/05/09/VNxpL4k5Ss89T1v.png" alt="图片2.png"></p>
+<p>故第五张图片的top = 第三张图片的高度 + 间隙； left = 第三张图片的left值</p>
+<p>排完后，我们要更新<em>colHeight</em>对应列的高度，也就是把原先第三列的高度加上第五张图片的高度和gap。</p>
+<p>第五张、第六张……都可以这么做。</p>
+<p>代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; boxs.length; i++) &#123;</span><br><span class="line">       <span class="comment">// 先排列第一行</span></span><br><span class="line">       <span class="keyword">if</span> (i &lt; colNum) &#123;</span><br><span class="line">          boxs[i].style.cssText = <span class="string">`left:<span class="subst">$&#123;i * (boxWidth + gap)&#125;</span>px`</span></span><br><span class="line">          colHeight.push(boxs[i].clientHeight)</span><br><span class="line">        &#125;</span><br><span class="line">       <span class="comment">// 从第二行开始，找当前高度最短的列</span></span><br><span class="line">       <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">let</span> minHeight = <span class="built_in">Math</span>.min(...colHeight)</span><br><span class="line">          <span class="keyword">let</span> minIndex = colHeight.indexOf(minHeight)</span><br><span class="line">          boxs[i].style.cssText = <span class="string">`top:<span class="subst">$&#123;minHeight + 		                                     gap&#125;</span>px;left:<span class="subst">$&#123;boxs[minIndex].offsetLeft&#125;</span>px`</span></span><br><span class="line">          colHeight[minIndex] += (boxs[i].clientHeight + gap)</span><br><span class="line">        &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，已经完成了瀑布流的基本布局。</p>
+<p>完整代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> boxs = <span class="keyword">this</span>.document.getElementsByClassName(<span class="string">'box'</span>)</span><br><span class="line"><span class="keyword">let</span> waterfall = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 确定浏览器显示区域内，一行能放多少列图片盒子</span></span><br><span class="line">    <span class="keyword">let</span> pageWidth = <span class="keyword">this</span>.document.body.clientWidth</span><br><span class="line">    <span class="keyword">let</span> boxWidth = <span class="number">230</span></span><br><span class="line">    <span class="keyword">let</span> gap = <span class="number">7</span></span><br><span class="line">    <span class="keyword">let</span> colNum = <span class="built_in">Math</span>.floor(pageWidth / (boxWidth + <span class="number">10</span>))</span><br><span class="line">    <span class="keyword">let</span> colHeight = []</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; boxs.length; i++) &#123;</span><br><span class="line">        <span class="comment">// 先排列第一行</span></span><br><span class="line">        <span class="keyword">if</span> (i &lt; colNum) &#123;</span><br><span class="line">            boxs[i].style.cssText = <span class="string">`left:<span class="subst">$&#123;i * (boxWidth + gap)&#125;</span>px`</span></span><br><span class="line">            colHeight.push(boxs[i].clientHeight)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 从第二行开始，找当前高度最短的列</span></span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> minHeight = <span class="built_in">Math</span>.min(...colHeight)</span><br><span class="line">            <span class="keyword">let</span> minIndex = colHeight.indexOf(minHeight)</span><br><span class="line">            boxs[i].style.cssText = <span class="string">`top:<span class="subst">$&#123;minHeight + gap&#125;</span>px;left:<span class="subst">$&#123;boxs[minIndex].offsetLeft&#125;</span>px`</span></span><br><span class="line">            colHeight[minIndex] += (boxs[i].clientHeight + gap)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<h1 id="进阶"><a href="#进阶" class="headerlink" title="进阶"></a>进阶</h1><ul>
+<li><p>实现改变窗口大小时，布局变化（列数）</p>
+<p>很简单，只要监听resize事件</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 监听resize事件</span></span><br><span class="line"><span class="built_in">window</span>.onresize = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    waterfall()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>实现动态加载</p>
+<p>原理如下图，绿色图片盒子是当前boxs数组中的最后一个元素，当用户滚动滚动条，绿色元素显示出来，我们就需要加载新的图片了。</p>
+<p>其中offsetTop、clientHeight是不会变化的，只有scrollTop会随着滚动条的滚动而增加。故临界条件是</p>
+<p><strong>offsetTop &lt;  ScrollTop + clientHeight</strong> 时，就要加载新的图片</p>
+<p><img src="https://i.loli.net/2020/05/09/Db9REgoVziN7tu8.png" alt="图片3.png"></p>
+</li>
+</ul>
+<p>​    这里使用一个数组来模拟新的图片</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> data = [</span><br><span class="line">        <span class="string">'./images/19.jpg'</span>,</span><br><span class="line">        <span class="string">'./images/19.jpg'</span>,</span><br><span class="line">        <span class="string">'./images/19.jpg'</span>,</span><br><span class="line">        <span class="string">'./images/19.jpg'</span>,</span><br><span class="line">    	...</span><br><span class="line">    ]</span><br><span class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 临界条件</span></span><br><span class="line">        <span class="keyword">if</span> (boxs[boxs.length - <span class="number">1</span>].offsetTop + <span class="built_in">Math</span>.floor(boxs[boxs.length - <span class="number">1</span>].clientHeight / <span class="number">2</span>) &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; data.length; i++) &#123;</span><br><span class="line">                <span class="comment">// 创建图片盒子单元</span></span><br><span class="line">                <span class="keyword">let</span> div = <span class="keyword">this</span>.document.createElement(<span class="string">'div'</span>)</span><br><span class="line">                div.className = <span class="string">'box'</span></span><br><span class="line">                <span class="keyword">let</span> img = <span class="keyword">this</span>.document.createElement(<span class="string">'img'</span>)</span><br><span class="line">                img.src = data[i]</span><br><span class="line">                div.appendChild(img)</span><br><span class="line">                body = <span class="keyword">this</span>.document.getElementsByTagName(<span class="string">'body'</span>)[<span class="number">0</span>]</span><br><span class="line">                body.appendChild(div)</span><br><span class="line">                <span class="comment">// 追加到boxs数组中</span></span><br><span class="line">                boxs = <span class="keyword">this</span>.document.getElementsByClassName(<span class="string">'box'</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            waterfall()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    至此，完成了动态加载，下拉即可触发</p>
+<p><img src="https://i.loli.net/2020/05/09/4v5P76aiXuL3hnM.png" alt="批注 2020-05-09 103755.png"></p>
+]]></content>
+      <tags>
+        <tag>瀑布流 JS</tag>
+      </tags>
+  </entry>
 </search>
