@@ -12,6 +12,89 @@
       </tags>
   </entry>
   <entry>
+    <title>如何求解async await promise setTimeout的顺序？</title>
+    <url>/2020/05/09/%E5%A6%82%E4%BD%95%E6%B1%82%E8%A7%A3async-await-promise-setTimeout%E7%9A%84%E9%A1%BA%E5%BA%8F%EF%BC%9F/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前端笔试题中常常有一种题，给定一定代码，让笔试者写这段代码的输出。一般这段代码，尝尝糅合了各种异步操作，比如async、await、promise、setTimeout，常常令人混淆。与此同时，由于node环境与浏览器环境执行这些异步操作的策略不同，也会有一些差异。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><strong>重要概念：</strong></p>
+<ul>
+<li>首先我们要知道Javascript是<strong>单线程</strong>的</li>
+<li>Javascript里的代码可以分为<strong>同步任务</strong>与<strong>异步任务</strong></li>
+<li>同步任务会在<strong>主线程</strong>上执行。是在栈中执行，先进后出。</li>
+<li>而异步任务会被放置到主线程之外的<strong>任务队列</strong>，先进先出</li>
+<li>当主线程上的同步任务执行完成后，会读取任务队列的异步任务</li>
+</ul>
+<p><strong>宏任务与微任务</strong></p>
+<p>上面讲到异步任务会在任务队列中执行。而执行异步代码的时候会分为两个队列，宏任务队列与微任务队列。</p>
+<p>宏任务包括：</p>
+<ul>
+<li>一开始执行的整段的代码（script代码）</li>
+<li>setTimeout、setInterval、postMessage等</li>
+</ul>
+<p>微任务包括：</p>
+<ul>
+<li><p>Promise.then后面的代码</p>
+</li>
+<li><p>await后面的代码（指的是 await func() 下一行开始的代码）</p>
+</li>
+<li><p>process.nextTick（node中的）</p>
+<a id="more"></a>
+
+</li>
+</ul>
+<h2 id="浏览器与Node中的事件轮询策略"><a href="#浏览器与Node中的事件轮询策略" class="headerlink" title="浏览器与Node中的事件轮询策略"></a>浏览器与Node中的事件轮询策略</h2><ul>
+<li><p>对于<strong>浏览器</strong>来说，同步代码在栈中执行完毕后，会<strong>先去执行微任务队列</strong>，将微任务队列<strong>执行完</strong>后，<strong>再去执行宏任务队列</strong>。当每个宏任务被执行完后，准备执行下一个宏任务时，会检查这个执行完的宏任务是否产生了新的微任务。如果产生了新的微任务，则先去清空微任务队列，再执行下一个宏任务。依次轮循，直到清空整个异步队列。</p>
+</li>
+<li><p>对于<strong>Node</strong>来说。同样会现在栈中执行同步代码，不同的是Node有自己的多个处理不同问题的阶段和对应的队列，整个事件轮询机制是Libuv库实现的。与浏览器最大的不同是Node中有<strong>多个队列，分别执行不同操作</strong>。在每次<strong>队列切换</strong>时，都会区<strong>清空一次微任务队列</strong>。</p>
+<p><img src="https://i.loli.net/2020/05/09/YwG4j9gW7T1fsev.png" alt="批注 2020-05-09 205449.png"></p>
+</li>
+</ul>
+<p><strong>总结</strong>：Node会在队列切换时清空微任务队列，意思是这个队列可能会产生很多微任务，然而也要等这个队列执行完后再去清空这些微任务。然而浏览器会再产生微任务后，就去执行微任务，然后再执行下一个宏任务。</p>
+<p><strong>举例</strong>：看如下代码</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"setTimeout1"</span>);</span><br><span class="line">    <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"Promise1"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"setTimeout2"</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>对于Node来说</p>
+<p>1、将整段代码看作宏任务，解析时将两个setTimeout放入timers队列，而console.log(1)为同步任务，会输出1</p>
+<p>2、此时检查微任务队列，发现微任务队列为空，切换到下一个队列</p>
+<p>3、进入了timers队列，解析第一个setTimeout，发现有 console.log(“setTimeout1”)，输出setTimeout1。</p>
+<p>4、发现有Promise.then，将里面的内容放入微任务队列</p>
+<p><strong>5、解析第二个setTimeout队列，发现有console.log(“setTimeout2”);，输出setTimeout2</strong></p>
+<p><strong>6、timers队列解析完毕，即将队列切换，检查微任务队列，发现有Promise.then，输出Promise1。</strong></p>
+<p>对于浏览器来说</p>
+<p>1、将整段代码看作宏任务，解析时将两个setTimeout放入宏任务队列，而console.log(1)为同步任务，会输出1</p>
+<p>2、此时微任务队列为空，进入宏任务队列</p>
+<p>3、解析第一个setTimeout，发现有发现有 console.log(“setTimeout1”)，输出setTimeout1。</p>
+<p>4、发现有Promise.then，将里面的内容放入微任务队列</p>
+<p><strong>5、因为产生了新的微任务，故执行完上一个宏任务后，立马清空微任务，输出Promise1</strong></p>
+<p><strong>6、微任务执行完毕，继续执行第二个setTimeout，输出setTimeout2</strong></p>
+<h2 id="综合题"><a href="#综合题" class="headerlink" title="综合题"></a>综合题</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//请写出输出内容</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">async1</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async1 start'</span>);</span><br><span class="line">    <span class="keyword">await</span> async2();</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async1 end'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">async2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async2'</span>);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'script start'</span>);</span><br><span class="line"> </span><br><span class="line">setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'setTimeout'</span>);</span><br><span class="line">&#125;, <span class="number">0</span>)</span><br><span class="line"> </span><br><span class="line">async1();</span><br><span class="line"> </span><br><span class="line"><span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'promise1'</span>);</span><br><span class="line">    resolve();</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'promise2'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'script end'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*浏览器中</span></span><br><span class="line"><span class="comment">script start</span></span><br><span class="line"><span class="comment">async1 start</span></span><br><span class="line"><span class="comment">async2</span></span><br><span class="line"><span class="comment">promise1</span></span><br><span class="line"><span class="comment">script end</span></span><br><span class="line"><span class="comment">async1 end</span></span><br><span class="line"><span class="comment">promise2</span></span><br><span class="line"><span class="comment">setTimeout</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>这段代码加了几乎所有”难点”难点</p>
+<p><strong>注意：遇到 await 会跳出当前函数，并让出线程，再将await后面的代码放到 微任务（microtask）队列中</strong>。</p>
+<p>执行过程为</p>
+<p>1、同步执行, 输出“script start”。</p>
+<p>2、遇到setTimeout，将里面代码放到宏任务队列。</p>
+<p>3、继续往下，输出 “async1 start”，然后执行 async2函数，输出 “async2”。</p>
+<p>4、async2执行完毕，<strong>将await async2 后面的代码（console.log(‘async1 end’);）加入到 微任务队列</strong></p>
+<p>5、aysnc1()流程走完了，接下来进到Promise，同步输出’promise1’</p>
+<p>6、遇到 <strong>promise.then，加入到微任务队列</strong></p>
+<p>7、同步输出script end</p>
+<p>8、当前宏任务执行完毕，查看微任务队列，按照先进先出原则</p>
+<p>9、依次输出’async1 end’ “promise2”</p>
+<p>10、执行下一个宏任务，里面只有一个setTimeout，所以最后输出setTimeout</p>
+<p><strong>同步执行的：[script start] [async1 start] [async2] [promise1] [script end]</strong></p>
+<p><strong>微任务队列：[async1 end] [ promise2 ]</strong></p>
+<p><strong>宏任务队列：[setTimeout]</strong></p>
+<blockquote>
+<p>参考</p>
+<p><a href="https://www.cnblogs.com/ly0612/p/setTimeout-promise-async-await-js-JavaScript.html" target="_blank" rel="noopener">https://www.cnblogs.com/ly0612/p/setTimeout-promise-async-await-js-JavaScript.html</a></p>
+<p><a href="https://www.jianshu.com/p/c620ece29586" target="_blank" rel="noopener">https://www.jianshu.com/p/c620ece29586</a></p>
+</blockquote>
+]]></content>
+      <tags>
+        <tag>异步</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>纯JS瀑布流效果与动态加载</title>
     <url>/2020/05/09/%E7%80%91%E5%B8%83%E6%B5%81%E6%95%88%E6%9E%9C/</url>
     <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>瀑布流效果的特征是，里面的图片<strong>等宽不等高</strong>，并按列向下排列。同时，也可以拥有<strong>动态加载</strong>的功能。</p>
