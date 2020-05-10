@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-10T12:06:36.869Z</updated>
+  <updated>2020-05-10T12:15:53.198Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,17 +21,14 @@
     <link href="http://yoursite.com/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/"/>
     <id>http://yoursite.com/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</id>
     <published>2020-05-10T11:06:17.000Z</published>
-    <updated>2020-05-10T12:06:36.869Z</updated>
+    <updated>2020-05-10T12:15:53.198Z</updated>
     
     <summary type="html">
     
-      
-      
-        
-        
-          &lt;h2 id=&quot;介绍&quot;&gt;&lt;a href=&quot;#介绍&quot; class=&quot;headerlink&quot;
-        
-      
+      &lt;h2 id=&quot;介绍&quot;&gt;&lt;a href=&quot;#介绍&quot; class=&quot;headerlink&quot; title=&quot;介绍&quot;&gt;&lt;/a&gt;介绍&lt;/h2&gt;&lt;p&gt;图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。&lt;/p&gt;
+&lt;p&gt;下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。&lt;/p&gt;
+&lt;p&gt;然而继续往下拉动后，这张图片会进行加载&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://wx2.sbimg.cn/2020/05/10/MDTCPC1OMCGBM_WHPX.png&quot; alt=&quot;MDTCPC1OMCGBM_WHPX.png&quot;&gt;&lt;/p&gt;
     
     </summary>
     
