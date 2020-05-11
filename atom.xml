@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-10T12:15:53.198Z</updated>
+  <updated>2020-05-11T10:18:07.912Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,36 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>认清Token的职责</title>
+    <link href="http://yoursite.com/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/"/>
+    <id>http://yoursite.com/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</id>
+    <published>2020-05-11T09:26:19.000Z</published>
+    <updated>2020-05-11T10:18:07.912Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;Session-Cookie&quot;&gt;&lt;a href=&quot;#Session-Cookie&quot; class=&quot;headerlink&quot; title=&quot;Session+Cookie&quot;&gt;&lt;/a&gt;Session+Cookie&lt;/h2&gt;&lt;p&gt;我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。&lt;/p&gt;
+&lt;p&gt;一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！&lt;/strong&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;http:&amp;#x2F;&amp;#x2F;test1.demo.com:8080 与 http:&amp;#x2F;&amp;#x2F;test2.demo.com:8081 之间共享 cookie&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;注意：test1.demo.com 是 demo.com的子域名&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3、可能会遭到CSRF攻击（cookie劫持）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;针对上面三个问题，我们可以想想如何解决：&lt;/p&gt;
+&lt;p&gt;1、用token，可以跨域名。&lt;/p&gt;
+&lt;p&gt;2、能不能不把session存在服务端，而存在客户端呢？&lt;/p&gt;
+&lt;p&gt;3、不使用cookie了，不就能避免CSRF了嘛？&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Token" scheme="http://yoursite.com/tags/Token/"/>
+    
+  </entry>
   
   <entry>
     <title>图片懒加载与防抖节流</title>
