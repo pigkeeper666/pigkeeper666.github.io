@@ -1,73 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>认清Token的职责</title>
-    <url>/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</url>
-    <content><![CDATA[<h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
-<p>一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：</p>
-<p><strong>1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;test1.demo.com:8080 与 http:&#x2F;&#x2F;test2.demo.com:8081 之间共享 cookie</span><br></pre></td></tr></table></figure>
-
-<p>注意：test1.demo.com 是 demo.com的子域名</p>
-<p><strong>2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。</strong></p>
-<p><strong>3、可能会遭到CSRF攻击（cookie劫持）</strong></p>
-<p>针对上面三个问题，我们可以想想如何解决：</p>
-<p>1、用token，可以跨域名。</p>
-<p>2、能不能不把session存在服务端，而存在客户端呢？</p>
-<p>3、不使用cookie了，不就能避免CSRF了嘛？</p>
+    <title>Vue.nextTick</title>
+    <url>/2020/05/12/Vue-nextTick/</url>
+    <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
+<p>本文主要参考了博客<a href="https://segmentfault.com/a/1190000012861862" target="_blank" rel="noopener">https://segmentfault.com/a/1190000012861862</a></p>
+<p>并解决了自己在使用vue中遇到的问题</p>
+</blockquote>
+<h2 id="定义与疑问"><a href="#定义与疑问" class="headerlink" title="定义与疑问"></a>定义与疑问</h2><blockquote>
+<p>Vue.nextTick()的定义如下：</p>
+<p>在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。</p>
+</blockquote>
+<p>我们不禁带着以下疑问：</p>
+<p>1、DOM更新循环是什么？</p>
+<p>2、下次更新循环是什么时候？</p>
+<p>3、什么时候会用到？（也就是为什么我们要延迟回调）</p>
 <a id="more"></a>
 
-<h2 id="什么是Token"><a href="#什么是Token" class="headerlink" title="什么是Token"></a>什么是Token</h2><p><strong>Token</strong>是服务端生成的一串字符串，以作客户端进行请求的一个<strong>令牌</strong>，当第一次登录后，服务器生成一个Token便将此Token返回给客户端，以后客户端只需带上这个Token前来请求数据即可，无需再次带上用户名和密码。</p>
-<p>优点：</p>
-<p><strong>1、可以跨域名</strong></p>
-<p><strong>2、服务端压力小，不用频繁的操作数据库，只要对token进行签名与“解密”</strong></p>
-<p><strong>3、规避了CSRF攻击。</strong></p>
-<p>以下讨论无状态Token</p>
+<h2 id="Vue异步更新DOM"><a href="#Vue异步更新DOM" class="headerlink" title="Vue异步更新DOM"></a>Vue异步更新DOM</h2><p>以下摘自Vue官方文档：</p>
 <blockquote>
-<p>注意，所谓无状态Token就是服务端不存储Token，而让客户端存储。</p>
+<p>可能你还没有注意到，Vue 在更新 DOM 时是<strong>异步</strong>执行的。只要侦听到数据变化，Vue 将开启一个队列，并缓冲在同一事件循环中发生的所有数据变更。如果同一个 watcher 被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和 DOM 操作是非常重要的。然后，在下一个的事件循环“tick”中，Vue 刷新队列并执行实际 (已去重的) 工作。</p>
+<p>例如，当你设置 <code>vm.someData = &#39;new value&#39;</code>，该组件不会立即重新渲染。当刷新队列时，组件会在下一个事件循环“tick”中更新。多数情况我们不需要关心这个过程，但是如果你想基于更新后的 DOM 状态来做点什么，这就可能会有些棘手。虽然 Vue.js 通常鼓励开发人员使用“数据驱动”的方式思考，避免直接接触 DOM，但是有时我们必须要这么做。为了在数据变化之后等待 Vue 完成更新 DOM，可以在数据变化之后立即使用 <code>Vue.nextTick(callback)</code>。这样回调函数将在 DOM 更新完成后被调用。</p>
 </blockquote>
-<p>你可能想问，如果服务端不存，那怎么验证Token呢？</p>
+<p>以上文案说明：<strong>Vue不是数据发生变化后DOM立即变化，而是通过一定的策略进行DOM更新。即异步更新</strong></p>
+<p>具体来说，异步执行的运行机制如下。</p>
 <blockquote>
-<p>假设我用这个数据<code>{id:12345}</code>生成一个<code>token</code>,这个<code>token</code>分为三段信息：</p>
-<p>第一段是头部<code>Header</code>，包括的信息有签名使用的算法（HS256等）、令牌的类型等。</p>
-<p>第二部分就是我们的数据<code>Payload</code>通过<code>base64</code>加密。包括发行人、到期时间、发布时间以及自定义字段等数据。</p>
-<p>第三部分是加密的签名。通过<code>Header</code>和<code>Payload</code>以及我们的服务端的私钥生成。签名是对上面两部分数据签名，通过指定的算法生成哈希，以确保数据不会被篡改。</p>
+<p>（1）所有<strong>同步任务</strong>都在主线程上执行，形成一个执行栈（execution context stack）。<br>（2）主线程之外，还存在一个<strong>“任务队列”（task queue）</strong>。只要<strong>异步任务有了运行结果</strong>，就在”任务队列”之中<strong>放置</strong>一个事件。<br>（3）一旦”执行栈”中的所有<strong>同步任务执行完毕</strong>，系统就会读取”任务队列”，看看里面有哪些事件。那些对应的异步任务，于是结束等待状态，进入执行栈，开始执行。<br>（4）主线程不断<strong>重复</strong>上面的第三步。</p>
 </blockquote>
-<p>因此，当服务端发回Token时，<strong>服务端再次对第一二部分进行数字签名，与第三部分对比</strong>。由于服务器私钥我们认为他是安全的，别人无法获得，因此当这两个值是一样的，则我们可以认为<strong>用户的登录信息没有被篡改。</strong>因此完成了Token的验证。</p>
-<p>综上，Token的作用是<strong>验证身份</strong>，<strong>安全问题不在它本身的职责范围内</strong></p>
-<h2 id="非常容易搞混的点"><a href="#非常容易搞混的点" class="headerlink" title="非常容易搞混的点"></a>非常容易搞混的点</h2><p>这个点便是<strong>安全问题。</strong></p>
-<p>你可能会想，倘若我发起<strong>中间人攻击</strong>：我截取了服务端返回的Token值，那么我便可以伪造真实的用户做一些坏事。</p>
-<p>没错，的确会这样，然而这不是Token的问题，你想，就算用cookie+session难道不会遇到这种问题嘛？</p>
-<p>那怎么办？</p>
-<p>事实上，这是<strong>HTTPS中的SSL/TSL防止的事情</strong>：通过对计算机中的网络流量进行加密（密钥协商是通过SSL握手协商而得），就算截取到了这个密文也无法进行破解，除非它们能够以某种方式获取服务器的私有SSL密钥的副本（不太可能）。</p>
-<p>同样还有一些别的安全防范手段：</p>
-<p>比如就不想别人知道<code>token</code>里面的数据，那就可以在给这个数据加一下密。或者担心这个<code>token</code>会被别人获取，照成这个用户的损失,那就需要在加别的手段来保证，比如通过验证来访的 ip ，比如设置更短的过期时间，比如你用的<code>HTTPS</code>，或者添加更多的验证等等。通过增加第三方的窃取成本，来降低被窃取的几率！</p>
-<p>这便是风控手段。</p>
-<p>用一个形象的例子来解释：</p>
+<p><a href="https://sbimg.cn/image/mlBy1" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/12/3835190331-580cd2a9443a7_articlex.md.png" alt="3835190331-580cd2a9443a7_articlex.md.png"></a></p>
+<h2 id="事件循环说明"><a href="#事件循环说明" class="headerlink" title="事件循环说明"></a>事件循环说明</h2><p>Vue在修改数据后，视图不会立即更新，而是等同一事件循环中所有数据变化完成后，再统一进行视图更新。</p>
+<p>举例如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//改变数据</span></span><br><span class="line">vm.message = <span class="string">'changed'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//想要立即使用更新后的DOM。这样不行，因为设置message后DOM还没有更新</span></span><br><span class="line"><span class="built_in">console</span>.log(vm.$el.textContent) <span class="comment">// 并不会得到'changed'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//这样可以，nextTick里面的代码会在DOM更新后执行</span></span><br><span class="line">Vue.nextTick(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(vm.$el.textContent) <span class="comment">//可以得到'changed'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>你的本意是想要使用已经更新完的DOM。如果不用nextTick，你在修改完值以后DOM还没有进行更新呢！</p>
+<p>图解如下：</p>
+<p><a href="https://sbimg.cn/image/mlgbJ" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/12/1596618069-5a5da8c8522c2_articlex.png" alt="1596618069-5a5da8c8522c2_articlex.png"></a></p>
+<p>此时的事件循环过程如下：</p>
+<ul>
+<li>第一个tick（上图的第一个黑方块，即本次更新循环）<ul>
+<li>首先修改数据，这是同步的任务。同一事件循环的所有同步任务都在主线程上执行，形成一个执行栈，此时仍未涉及DOM</li>
+<li>侦听到数据变化，Vue 将开启一个队列，并缓冲在同一事件循环中发生的所有数据变更。如果同一个watcher被多次的触发，只会被推入到队列中一次。</li>
+</ul>
+</li>
+<li>第二个tick（上图的第二个黑方块，即’下次更新循环’）<ul>
+<li>同步任务执行完毕，开始执行异步watcher队列的任务，更新DOM。Vue在内部尝试对异步队列使用原生的<code>Promise.then()</code>和<code>MessageChannel</code>方法，如果环境不支持，会使用<code>setTimeout(fn,0)</code>代替。</li>
+</ul>
+</li>
+<li>第三个tick（最后一个方块）<ul>
+<li>此时便是‘下次DOM更新循环结束后’</li>
+<li>此时可以通过<code>Vue.nextTick</code>获取到改变之后的DOM。</li>
+</ul>
+</li>
+</ul>
+<p>总结：</p>
 <blockquote>
-<p>你可以把<code>token</code>想象为银行的验钞机,验钞机的职责是验证假钞保证收进来的钱都是真钱，至于这个钱是偷的抢的,还是正常交易，那就不是验钞机管的了，那是警察叔叔管的。</p>
+<p>同步代码执行 -&gt; 查找异步队列，推入执行栈，执行Vue.nextTick[事件循环1] -&gt;查找异步队列，推入执行栈，执行Vue.nextTick[事件循环2]…</p>
+<p>总之，异步是单独的一个tick，不会和同步在一个 tick 里发生，也是 DOM 不会马上改变的原因。</p>
 </blockquote>
-<h2 id="扯床单"><a href="#扯床单" class="headerlink" title="扯床单"></a>扯床单</h2><p>什么叫扯床单？就是当你铺床时，左边的床单没平，于是你用力一拉…左边的床单是平了，然而右边又乱了……</p>
-<p><strong>Token规避了CSRF攻击，然而却增加了XSS攻击的风险</strong></p>
-<p>Token一般我们存在哪里？对！客户端。那客户端的哪里？</p>
-<p>存在cookie里吗？那本质上是不是又和cookie+session一样了？会造成token版的“CSRF”攻击吧。</p>
-<p>一般我们存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
-<p>这两个值是不会像cookie一样被自动携带访问某些网站的。</p>
-<p><strong>然而</strong>，这两个值是可以被JavaScript访问的，也就是说，仍然会有XSS攻击的风险！</p>
-]]></content>
+<h2 id="解决问题（应用场景）"><a href="#解决问题（应用场景）" class="headerlink" title="解决问题（应用场景）"></a>解决问题（应用场景）</h2><p>假设一个场景要实现以下需求：</p>
+<p><a href="https://sbimg.cn/image/mls2m" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/12/QQ20200512160954.jpg" alt="QQ20200512160954.jpg"></a></p>
+<p>当我点击<code>+New Tag</code>按钮时，这个按钮会变成一个输入框，并且<strong>自动获取焦点</strong>，如下：</p>
+<p><a href="https://sbimg.cn/image/mluM4" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/12/QQ20200512161255.jpg" alt="QQ20200512161255.jpg"></a></p>
+<p>逻辑上的做法是：输入框之前的 属性<code>v-show</code>为false，我们只需要将其改为true，然后再获取输入框的DOM元素，调用原生事件<code>focus()</code>。</p>
+<p>错误代码（按正常逻辑）：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">showsou()&#123;</span><br><span class="line">  <span class="keyword">this</span>.showit = <span class="literal">true</span> <span class="comment">//修改 v-show</span></span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">"keywords"</span>).focus()  <span class="comment">//在第一个 tick 里，获取不到输入框，自然也获取不到焦点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个DOM还没更新我们就调用focus了，肯定没效果。所以我们要让DOM更新完再调用。修改为：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">showsou()&#123;</span><br><span class="line">  <span class="keyword">this</span>.showit = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">this</span>.$nextTick(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// DOM 更新了</span></span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">"keywords"</span>).focus()</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <tags>
-        <tag>Token</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>开篇！初心与目标</title>
-    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
-<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
-<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
-]]></content>
-      <tags>
-        <tag>测试</tag>
+        <tag>vue</tag>
       </tags>
   </entry>
   <entry>
@@ -308,6 +309,76 @@
 ]]></content>
       <tags>
         <tag>瀑布流 JS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>认清Token的职责</title>
+    <url>/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</url>
+    <content><![CDATA[<h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
+<p>一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：</p>
+<p><strong>1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;test1.demo.com:8080 与 http:&#x2F;&#x2F;test2.demo.com:8081 之间共享 cookie</span><br></pre></td></tr></table></figure>
+
+<p>注意：test1.demo.com 是 demo.com的子域名</p>
+<p><strong>2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。</strong></p>
+<p><strong>3、可能会遭到CSRF攻击（cookie劫持）</strong></p>
+<p>针对上面三个问题，我们可以想想如何解决：</p>
+<p>1、用token，可以跨域名。</p>
+<p>2、能不能不把session存在服务端，而存在客户端呢？</p>
+<p>3、不使用cookie了，不就能避免CSRF了嘛？</p>
+<a id="more"></a>
+
+<h2 id="什么是Token"><a href="#什么是Token" class="headerlink" title="什么是Token"></a>什么是Token</h2><p><strong>Token</strong>是服务端生成的一串字符串，以作客户端进行请求的一个<strong>令牌</strong>，当第一次登录后，服务器生成一个Token便将此Token返回给客户端，以后客户端只需带上这个Token前来请求数据即可，无需再次带上用户名和密码。</p>
+<p>优点：</p>
+<p><strong>1、可以跨域名</strong></p>
+<p><strong>2、服务端压力小，不用频繁的操作数据库，只要对token进行签名与“解密”</strong></p>
+<p><strong>3、规避了CSRF攻击。</strong></p>
+<p>以下讨论无状态Token</p>
+<blockquote>
+<p>注意，所谓无状态Token就是服务端不存储Token，而让客户端存储。</p>
+</blockquote>
+<p>你可能想问，如果服务端不存，那怎么验证Token呢？</p>
+<blockquote>
+<p>假设我用这个数据<code>{id:12345}</code>生成一个<code>token</code>,这个<code>token</code>分为三段信息：</p>
+<p>第一段是头部<code>Header</code>，包括的信息有签名使用的算法（HS256等）、令牌的类型等。</p>
+<p>第二部分就是我们的数据<code>Payload</code>通过<code>base64</code>加密。包括发行人、到期时间、发布时间以及自定义字段等数据。</p>
+<p>第三部分是加密的签名。通过<code>Header</code>和<code>Payload</code>以及我们的服务端的私钥生成。签名是对上面两部分数据签名，通过指定的算法生成哈希，以确保数据不会被篡改。</p>
+</blockquote>
+<p>因此，当服务端发回Token时，<strong>服务端再次对第一二部分进行数字签名，与第三部分对比</strong>。由于服务器私钥我们认为他是安全的，别人无法获得，因此当这两个值是一样的，则我们可以认为<strong>用户的登录信息没有被篡改。</strong>因此完成了Token的验证。</p>
+<p>综上，Token的作用是<strong>验证身份</strong>，<strong>安全问题不在它本身的职责范围内</strong></p>
+<h2 id="非常容易搞混的点"><a href="#非常容易搞混的点" class="headerlink" title="非常容易搞混的点"></a>非常容易搞混的点</h2><p>这个点便是<strong>安全问题。</strong></p>
+<p>你可能会想，倘若我发起<strong>中间人攻击</strong>：我截取了服务端返回的Token值，那么我便可以伪造真实的用户做一些坏事。</p>
+<p>没错，的确会这样，然而这不是Token的问题，你想，就算用cookie+session难道不会遇到这种问题嘛？</p>
+<p>那怎么办？</p>
+<p>事实上，这是<strong>HTTPS中的SSL/TLS防止的事情</strong>：通过对计算机中的网络流量进行加密（密钥协商是通过SSL握手协商而得），就算截取到了这个密文也无法进行破解，除非它们能够以某种方式获取服务器的私有SSL密钥的副本（不太可能）。</p>
+<p>同样还有一些别的安全防范手段：</p>
+<p>比如就不想别人知道<code>token</code>里面的数据，那就可以在给这个数据加一下密。或者担心这个<code>token</code>会被别人获取，照成这个用户的损失,那就需要在加别的手段来保证，比如通过验证来访的 ip ，比如设置更短的过期时间，比如你用的<code>HTTPS</code>，或者添加更多的验证等等。通过增加第三方的窃取成本，来降低被窃取的几率！</p>
+<p>这便是风控手段。</p>
+<p>用一个形象的例子来解释：</p>
+<blockquote>
+<p>你可以把<code>token</code>想象为银行的验钞机,验钞机的职责是验证假钞保证收进来的钱都是真钱，至于这个钱是偷的抢的,还是正常交易，那就不是验钞机管的了，那是警察叔叔管的。</p>
+</blockquote>
+<h2 id="扯床单"><a href="#扯床单" class="headerlink" title="扯床单"></a>扯床单</h2><p>什么叫扯床单？就是当你铺床时，左边的床单没平，于是你用力一拉…左边的床单是平了，然而右边又乱了……</p>
+<p><strong>Token规避了CSRF攻击，然而却增加了XSS攻击的风险</strong></p>
+<p>Token一般我们存在哪里？对！客户端。那客户端的哪里？</p>
+<p>存在cookie里吗？那本质上是不是又和cookie+session一样了？会造成token版的“CSRF”攻击吧。</p>
+<p>一般我们存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
+<p>这两个值是不会像cookie一样被自动携带访问某些网站的。</p>
+<p><strong>然而</strong>，这两个值是可以被JavaScript访问的，也就是说，仍然会有XSS攻击的风险！</p>
+]]></content>
+      <tags>
+        <tag>Token</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开篇！初心与目标</title>
+    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
+<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
+<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
+]]></content>
+      <tags>
+        <tag>测试</tag>
       </tags>
   </entry>
 </search>

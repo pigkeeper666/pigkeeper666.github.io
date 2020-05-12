@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-11T10:18:07.912Z</updated>
+  <updated>2020-05-12T08:16:57.450Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,41 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Vue.nextTick</title>
+    <link href="http://yoursite.com/2020/05/12/Vue-nextTick/"/>
+    <id>http://yoursite.com/2020/05/12/Vue-nextTick/</id>
+    <published>2020-05-12T07:40:30.000Z</published>
+    <updated>2020-05-12T08:16:57.450Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;说明&quot;&gt;&lt;a href=&quot;#说明&quot; class=&quot;headerlink&quot; title=&quot;说明&quot;&gt;&lt;/a&gt;说明&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;本文主要参考了博客&lt;a href=&quot;https://segmentfault.com/a/1190000012861862&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://segmentfault.com/a/1190000012861862&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;并解决了自己在使用vue中遇到的问题&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;定义与疑问&quot;&gt;&lt;a href=&quot;#定义与疑问&quot; class=&quot;headerlink&quot; title=&quot;定义与疑问&quot;&gt;&lt;/a&gt;定义与疑问&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;Vue.nextTick()的定义如下：&lt;/p&gt;
+&lt;p&gt;在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;我们不禁带着以下疑问：&lt;/p&gt;
+&lt;p&gt;1、DOM更新循环是什么？&lt;/p&gt;
+&lt;p&gt;2、下次更新循环是什么时候？&lt;/p&gt;
+&lt;p&gt;3、什么时候会用到？（也就是为什么我们要延迟回调）&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="vue" scheme="http://yoursite.com/tags/vue/"/>
+    
+  </entry>
+  
+  <entry>
     <title>认清Token的职责</title>
     <link href="http://yoursite.com/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/"/>
     <id>http://yoursite.com/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</id>
     <published>2020-05-11T09:26:19.000Z</published>
-    <updated>2020-05-11T10:18:07.912Z</updated>
+    <updated>2020-05-11T10:35:02.191Z</updated>
     
     <summary type="html">
     
