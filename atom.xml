@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-13T12:33:57.340Z</updated>
+  <updated>2020-05-13T12:35:59.421Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,19 +21,19 @@
     <link href="http://yoursite.com/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/"/>
     <id>http://yoursite.com/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/</id>
     <published>2020-05-13T12:09:57.000Z</published>
-    <updated>2020-05-13T12:33:57.340Z</updated>
+    <updated>2020-05-13T12:35:59.421Z</updated>
     
     <summary type="html">
     
-      
-      
-        
-        
-          &lt;h2 id=&quot;说明&quot;&gt;&lt;a href=&quot;#说明&quot; class=&quot;headerlink&quot; title=&quot;说明&quot;&gt;&lt;/a&gt;说明&lt;/h2&gt;&lt;blockquote&gt;
+      &lt;h2 id=&quot;说明&quot;&gt;&lt;a href=&quot;#说明&quot; class=&quot;headerlink&quot; title=&quot;说明&quot;&gt;&lt;/a&gt;说明&lt;/h2&gt;&lt;blockquote&gt;
 &lt;p&gt;本文参考：&lt;/p&gt;
-&lt;p&gt;&lt;a
-        
-      
+&lt;p&gt;&lt;a href=&quot;https://www.cnblogs.com/yiyi17/p/12076657.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/yiyi17/p/12076657.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;疑问&quot;&gt;&lt;a href=&quot;#疑问&quot; class=&quot;headerlink&quot; title=&quot;疑问&quot;&gt;&lt;/a&gt;疑问&lt;/h2&gt;&lt;p&gt;WebRTC 本身提供的是&lt;strong&gt;1 对 1&lt;/strong&gt; 的通信模型，在 STUN/TURN 的辅助下，如果能实现 NAT 穿越，那么两个浏览器是可以直接进行媒体数据交换的；如果不能实现 NAT 穿越，那么只能通过 TURN 服务器进行数据转发的方式实现通信。目前来看，Google 开源的用于学习和研究的项目基本都是基于 STUN/TURN 的 1 对 1 通信。&lt;/p&gt;
+&lt;p&gt;一些多人场景中，倘若想实现多对多，那怎么办？&lt;/p&gt;
+&lt;h2 id=&quot;Mesh架构&quot;&gt;&lt;a href=&quot;#Mesh架构&quot; class=&quot;headerlink&quot; title=&quot;Mesh架构&quot;&gt;&lt;/a&gt;Mesh架构&lt;/h2&gt;&lt;p&gt;最容易想到的便是，对于多人会议中的每个人，都与剩余的人进行P2P的连接。如下图&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://wx2.sbimg.cn/2020/05/13/-2020-05-13-201611.png&quot; alt=&quot;-2020-05-13-201611.png&quot;&gt;&lt;/p&gt;
     
     </summary>
     
