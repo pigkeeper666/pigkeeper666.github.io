@@ -72,76 +72,53 @@
       </tags>
   </entry>
   <entry>
-    <title>图片懒加载与防抖节流</title>
-    <url>/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
-<p>下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。</p>
-<p>然而继续往下拉动后，这张图片会进行加载</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/10/MDTCPC1OMCGBM_WHPX.png" alt="MDTCPC1OMCGBM_WHPX.png"></p>
-<a id="more"></a>
-
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>其实主要的思想与我之前的文章<a href="https://www.pigkeeper.xyz/2020/05/09/瀑布流效果/" target="_blank" rel="noopener">纯JS瀑布流效果与动态加载</a>里的动态加载非常的相似，都是计算一个滚动的阈值，达到这个阈值后便进行图片的加载。</p>
-<p><strong>首先我们搭建简单的html结构</strong></p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>可以注意到，img的src属性都是”./default.png”，这是一张默认图，也就是上图的蓝色图片，而图片真正的src存在data-src中。data-src是一个自定义的数据，当我们获取到某个img的dom节点对象时，我们可以通过一些语句来获得data-src的值，方法是：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">console</span>.log(img.dataset.src)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会输出data-src的内容</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>其次是css</strong></p>
-<p>这里只是限定图片的大小，并居中显示</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">        <span class="selector-tag">img</span> &#123;</span><br><span class="line">            <span class="attribute">width</span>: <span class="number">230px</span>;</span><br><span class="line">            <span class="attribute">height</span>: <span class="number">320px</span>;</span><br><span class="line">            <span class="attribute">display</span>: block;</span><br><span class="line">            <span class="attribute">margin-top</span>: <span class="number">10px</span>;</span><br><span class="line">            ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-class">.box</span> &#123;</span><br><span class="line">            <span class="attribute">display</span>: flex;</span><br><span class="line">            <span class="attribute">flex-direction</span>: column;</span><br><span class="line">            <span class="attribute">align-items</span>: center;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br></pre></td></tr></table></figure>
-
-<p><strong>js部分</strong></p>
-<p>至此，我们很容易的想到，如果要实现图片的懒加载，我们只需要监听滚动事件，当触发某个条件时，我们就把img标签的src属性值替换为data-src的值，这样就能加载图片了。</p>
-<p>那么，这个条件是什么呢？</p>
-<p>同样用一张图来说明：</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/10/1.png" alt="1.png"></p>
-<p>其中offsetTop、halfHeight、clientHeight都不会变，只有scrollTop会变</p>
-<p>故当<strong>offsetTop + halfHeight &lt; scrollTop + clientHeight</strong>时，加载图片。</p>
-<p><strong>以下是完整代码</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取所有的img节点</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// 将伪数组转化为数组</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 图片高度的一半</span></span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="comment">// 临界条件</span></span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            <span class="comment">// 替换src</span></span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
-
-<p>至此，基本完成了图片的懒加载。</p>
-<h2 id="防抖与节流"><a href="#防抖与节流" class="headerlink" title="防抖与节流"></a>防抖与节流</h2><blockquote>
-<p> 在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。</p>
-<p>一般可以用防抖和节流来解决这个问题。</p>
-</blockquote>
-<p><strong>防抖（debounce）</strong></p>
-<p><strong>所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间，用定时器实现。</strong></p>
-<p>下面是具体的实现，注意看我的注释。闭包是为了保留timer这个状态，而apply的作用在注释中有写到，可以仔细去品味一下。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 闭包</span></span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="comment">// !!!!很重要</span></span><br><span class="line">    <span class="comment">// 这个函数是事件对象调用的函数，事件会给这个函数一个参数e 下面可以用arguments拿到</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            clearInterval(timer)</span><br><span class="line">        &#125;</span><br><span class="line">        timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 由于是箭头函数，这个this和arguments是从上面继承下来的</span></span><br><span class="line">            <span class="comment">// 用apply是为了让 debounce 函数最终返回的函数 this 指向不变以及依旧能接受到 e 参数。</span></span><br><span class="line">            <span class="comment">// 这个arguments就是 e</span></span><br><span class="line">            fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            timer = <span class="literal">null</span></span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>节流（throttle）</strong></p>
-<p><strong>所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数。</strong></p>
-<p>懂了防抖，节流也会相对容易理解。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 节流</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">throttle</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> flag = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!flag) <span class="keyword">return</span></span><br><span class="line">        flag = <span class="literal">false</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            func.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            flag = <span class="literal">true</span></span><br><span class="line">        &#125;, wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="图片懒加载的优化"><a href="#图片懒加载的优化" class="headerlink" title="图片懒加载的优化"></a>图片懒加载的优化</h2><p>上面我们实现的懒加载，是依靠监听滚动条。当我们滚动时，会频繁的触发计算，是否可以优化，让它少触发几次？那我们是应该用防抖还是节流呢？</p>
-<p>想一下，如果用防抖，会导致一直触发事件，一直重置定时器，是不是有可能一直加载不出图片？</p>
-<p>而用节流，无论你在这段时间里触发多少次，过了这段时间我一定会执行一次，这是不是就满足了我们的需求！</p>
-<p>注意书写形式</p>
-<p><strong>完整代码</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 滚动条用节流比较好</span></span><br><span class="line"><span class="built_in">window</span>.onscroll = throttle(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// console.log(img)</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br></pre></td></tr></table></figure>
-
-
+    <title>别再用对象代替Map了</title>
+    <url>/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>其实没有标题那么夸张，大家根据喜欢与熟练程度自己选用就好。</p>
+<p>只是今天博主用对象代替Map被坑了，所以决心再也不偷懒了……</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>其实JS里的对象和Map都可以用来存键值对。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="string">'name'</span>:<span class="string">'养猪大师'</span>,</span><br><span class="line">     num:<span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="string">'name'</span>,<span class="string">'养猪大师'</span>)</span><br><span class="line">map.set(<span class="string">'num'</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<p>参考：<a href="https://www.jianshu.com/p/c8b86b09daf0" target="_blank" rel="noopener">https://www.jianshu.com/p/c8b86b09daf0</a></p>
+<p>然而有区别，虽然存的都是key-value，但是在对象中，key的类型会被转化为<strong>字符串</strong></p>
+<p>但是map的key值不会被转换哦</p>
 </blockquote>
+<p>同样，我们也可以通过方法，判断容器里是否有某个key</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[name])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;  <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'name'</span>) <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'num'</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>但是细心的你有没有发现，我少写了一个</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你猜猜会输出啥？</p>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
+<p>上面这段代码会返回false。</p>
+<p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
+<p>你也许会恍然大悟，然后觉得这有什么，下次注意就好。</p>
+<p>但是这种东西很玄学的，可能你就真没注意到呢？</p>
+<p>如果一定要用obj来写，那我推荐用这样的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num]!==<span class="literal">undefined</span>)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="来做做这道题"><a href="#来做做这道题" class="headerlink" title="来做做这道题"></a>来做做这道题</h2><blockquote>
+<p>来源：leetcode:面试题48</p>
+<p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
+<p>示例 1:</p>
+<p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。<br>示例 2:</p>
+<p>输入: “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。<br>示例 3:</p>
+<p>输入: “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。<br>     请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。</p>
+<p>提示：</p>
+<p>s.length &lt;= 40000</p>
+</blockquote>
+<p>解答可以自行百度，大致思路是 滑动窗口+hash表优化。</p>
+<p>然而博主v1.0的版本如何都无法通过：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> hash = []</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;</span><br><span class="line">       <span class="keyword">if</span>(hash[s[tail]])&#123;</span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,hash[s[tail]]+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">       hash[s[tail]] = tail</span><br><span class="line">       max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>原因正是，<strong>返回的value的值是0，破坏了我的计划！</strong>，让我整整找了半小时。</p>
+<p>老老实实用Map吧</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;      </span><br><span class="line">       <span class="keyword">if</span>(map.has(s[tail]))&#123;</span><br><span class="line">           <span class="comment">// ！！！注意要max</span></span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,map.get(s[tail])+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">      map.set(s[tail],tail)</span><br><span class="line">      max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
-        <tag>图片懒加载 节流 防抖</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>开篇！初心与目标</title>
-    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
-<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
-<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
-]]></content>
-      <tags>
-        <tag>测试</tag>
+        <tag>Map</tag>
       </tags>
   </entry>
   <entry>
@@ -228,6 +205,76 @@
       </tags>
   </entry>
   <entry>
+    <title>开篇！初心与目标</title>
+    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
+<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
+<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
+]]></content>
+      <tags>
+        <tag>测试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>认清Token的职责</title>
+    <url>/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</url>
+    <content><![CDATA[<h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
+<p>一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：</p>
+<p><strong>1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;test1.demo.com:8080 与 http:&#x2F;&#x2F;test2.demo.com:8081 之间共享 cookie</span><br></pre></td></tr></table></figure>
+
+<p>注意：test1.demo.com 是 demo.com的子域名</p>
+<p><strong>2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。</strong></p>
+<p><strong>3、可能会遭到CSRF攻击（cookie劫持）</strong></p>
+<p>针对上面三个问题，我们可以想想如何解决：</p>
+<p>1、用token，可以跨域名。</p>
+<p>2、能不能不把session存在服务端，而存在客户端呢？</p>
+<p>3、不使用cookie了，不就能避免CSRF了嘛？</p>
+<a id="more"></a>
+
+<h2 id="什么是Token"><a href="#什么是Token" class="headerlink" title="什么是Token"></a>什么是Token</h2><p><strong>Token</strong>是服务端生成的一串字符串，以作客户端进行请求的一个<strong>令牌</strong>，当第一次登录后，服务器生成一个Token便将此Token返回给客户端，以后客户端只需带上这个Token前来请求数据即可，无需再次带上用户名和密码。</p>
+<p>优点：</p>
+<p><strong>1、可以跨域名</strong></p>
+<p><strong>2、服务端压力小，不用频繁的操作数据库，只要对token进行签名与“解密”</strong></p>
+<p><strong>3、规避了CSRF攻击。</strong></p>
+<p>以下讨论无状态Token</p>
+<blockquote>
+<p>注意，所谓无状态Token就是服务端不存储Token，而让客户端存储。</p>
+</blockquote>
+<p>你可能想问，如果服务端不存，那怎么验证Token呢？</p>
+<blockquote>
+<p>假设我用这个数据<code>{id:12345}</code>生成一个<code>token</code>,这个<code>token</code>分为三段信息：</p>
+<p>第一段是头部<code>Header</code>，包括的信息有签名使用的算法（HS256等）、令牌的类型等。</p>
+<p>第二部分就是我们的数据<code>Payload</code>通过<code>base64</code>加密。包括发行人、到期时间、发布时间以及自定义字段等数据。</p>
+<p>第三部分是加密的签名。通过<code>Header</code>和<code>Payload</code>以及我们的服务端的私钥生成。签名是对上面两部分数据签名，通过指定的算法生成哈希，以确保数据不会被篡改。</p>
+</blockquote>
+<p>因此，当服务端发回Token时，<strong>服务端再次对第一二部分进行数字签名，与第三部分对比</strong>。由于服务器私钥我们认为他是安全的，别人无法获得，因此当这两个值是一样的，则我们可以认为<strong>用户的登录信息没有被篡改。</strong>因此完成了Token的验证。</p>
+<p>综上，Token的作用是<strong>验证身份</strong>，<strong>安全问题不在它本身的职责范围内</strong></p>
+<h2 id="非常容易搞混的点"><a href="#非常容易搞混的点" class="headerlink" title="非常容易搞混的点"></a>非常容易搞混的点</h2><p>这个点便是<strong>安全问题。</strong></p>
+<p>你可能会想，倘若我发起<strong>中间人攻击</strong>：我截取了服务端返回的Token值，那么我便可以伪造真实的用户做一些坏事。</p>
+<p>没错，的确会这样，然而这不是Token的问题，你想，就算用cookie+session难道不会遇到这种问题嘛？</p>
+<p>那怎么办？</p>
+<p>事实上，这是<strong>HTTPS中的SSL/TLS防止的事情</strong>：通过对计算机中的网络流量进行加密（密钥协商是通过SSL握手协商而得），就算截取到了这个密文也无法进行破解，除非它们能够以某种方式获取服务器的私有SSL密钥的副本（不太可能）。</p>
+<p>同样还有一些别的安全防范手段：</p>
+<p>比如就不想别人知道<code>token</code>里面的数据，那就可以在给这个数据加一下密。或者担心这个<code>token</code>会被别人获取，照成这个用户的损失,那就需要在加别的手段来保证，比如通过验证来访的 ip ，比如设置更短的过期时间，比如你用的<code>HTTPS</code>，或者添加更多的验证等等。通过增加第三方的窃取成本，来降低被窃取的几率！</p>
+<p>这便是风控手段。</p>
+<p>用一个形象的例子来解释：</p>
+<blockquote>
+<p>你可以把<code>token</code>想象为银行的验钞机,验钞机的职责是验证假钞保证收进来的钱都是真钱，至于这个钱是偷的抢的,还是正常交易，那就不是验钞机管的了，那是警察叔叔管的。</p>
+</blockquote>
+<h2 id="扯床单"><a href="#扯床单" class="headerlink" title="扯床单"></a>扯床单</h2><p>什么叫扯床单？就是当你铺床时，左边的床单没平，于是你用力一拉…左边的床单是平了，然而右边又乱了……</p>
+<p><strong>Token规避了CSRF攻击，然而却增加了XSS攻击的风险</strong></p>
+<p>Token一般我们存在哪里？对！客户端。那客户端的哪里？</p>
+<p>存在cookie里吗？那本质上是不是又和cookie+session一样了？会造成token版的“CSRF”攻击吧。</p>
+<p>一般我们存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
+<p>这两个值是不会像cookie一样被自动携带访问某些网站的。</p>
+<p><strong>然而</strong>，这两个值是可以被JavaScript访问的，也就是说，仍然会有XSS攻击的风险！</p>
+]]></content>
+      <tags>
+        <tag>Token</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>WebRTC的三种架构</title>
     <url>/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/</url>
     <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
@@ -274,6 +321,68 @@
 ]]></content>
       <tags>
         <tag>WebRTC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>图片懒加载与防抖节流</title>
+    <url>/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
+<p>下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。</p>
+<p>然而继续往下拉动后，这张图片会进行加载</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/10/MDTCPC1OMCGBM_WHPX.png" alt="MDTCPC1OMCGBM_WHPX.png"></p>
+<a id="more"></a>
+
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>其实主要的思想与我之前的文章<a href="https://www.pigkeeper.xyz/2020/05/09/瀑布流效果/" target="_blank" rel="noopener">纯JS瀑布流效果与动态加载</a>里的动态加载非常的相似，都是计算一个滚动的阈值，达到这个阈值后便进行图片的加载。</p>
+<p><strong>首先我们搭建简单的html结构</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以注意到，img的src属性都是”./default.png”，这是一张默认图，也就是上图的蓝色图片，而图片真正的src存在data-src中。data-src是一个自定义的数据，当我们获取到某个img的dom节点对象时，我们可以通过一些语句来获得data-src的值，方法是：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">console</span>.log(img.dataset.src)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会输出data-src的内容</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>其次是css</strong></p>
+<p>这里只是限定图片的大小，并居中显示</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">        <span class="selector-tag">img</span> &#123;</span><br><span class="line">            <span class="attribute">width</span>: <span class="number">230px</span>;</span><br><span class="line">            <span class="attribute">height</span>: <span class="number">320px</span>;</span><br><span class="line">            <span class="attribute">display</span>: block;</span><br><span class="line">            <span class="attribute">margin-top</span>: <span class="number">10px</span>;</span><br><span class="line">            ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-class">.box</span> &#123;</span><br><span class="line">            <span class="attribute">display</span>: flex;</span><br><span class="line">            <span class="attribute">flex-direction</span>: column;</span><br><span class="line">            <span class="attribute">align-items</span>: center;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>js部分</strong></p>
+<p>至此，我们很容易的想到，如果要实现图片的懒加载，我们只需要监听滚动事件，当触发某个条件时，我们就把img标签的src属性值替换为data-src的值，这样就能加载图片了。</p>
+<p>那么，这个条件是什么呢？</p>
+<p>同样用一张图来说明：</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/10/1.png" alt="1.png"></p>
+<p>其中offsetTop、halfHeight、clientHeight都不会变，只有scrollTop会变</p>
+<p>故当<strong>offsetTop + halfHeight &lt; scrollTop + clientHeight</strong>时，加载图片。</p>
+<p><strong>以下是完整代码</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取所有的img节点</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// 将伪数组转化为数组</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 图片高度的一半</span></span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="comment">// 临界条件</span></span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            <span class="comment">// 替换src</span></span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>至此，基本完成了图片的懒加载。</p>
+<h2 id="防抖与节流"><a href="#防抖与节流" class="headerlink" title="防抖与节流"></a>防抖与节流</h2><blockquote>
+<p> 在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。</p>
+<p>一般可以用防抖和节流来解决这个问题。</p>
+</blockquote>
+<p><strong>防抖（debounce）</strong></p>
+<p><strong>所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间，用定时器实现。</strong></p>
+<p>下面是具体的实现，注意看我的注释。闭包是为了保留timer这个状态，而apply的作用在注释中有写到，可以仔细去品味一下。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 闭包</span></span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="comment">// !!!!很重要</span></span><br><span class="line">    <span class="comment">// 这个函数是事件对象调用的函数，事件会给这个函数一个参数e 下面可以用arguments拿到</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            clearInterval(timer)</span><br><span class="line">        &#125;</span><br><span class="line">        timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 由于是箭头函数，这个this和arguments是从上面继承下来的</span></span><br><span class="line">            <span class="comment">// 用apply是为了让 debounce 函数最终返回的函数 this 指向不变以及依旧能接受到 e 参数。</span></span><br><span class="line">            <span class="comment">// 这个arguments就是 e</span></span><br><span class="line">            fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            timer = <span class="literal">null</span></span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>节流（throttle）</strong></p>
+<p><strong>所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数。</strong></p>
+<p>懂了防抖，节流也会相对容易理解。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 节流</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">throttle</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> flag = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!flag) <span class="keyword">return</span></span><br><span class="line">        flag = <span class="literal">false</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            func.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            flag = <span class="literal">true</span></span><br><span class="line">        &#125;, wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="图片懒加载的优化"><a href="#图片懒加载的优化" class="headerlink" title="图片懒加载的优化"></a>图片懒加载的优化</h2><p>上面我们实现的懒加载，是依靠监听滚动条。当我们滚动时，会频繁的触发计算，是否可以优化，让它少触发几次？那我们是应该用防抖还是节流呢？</p>
+<p>想一下，如果用防抖，会导致一直触发事件，一直重置定时器，是不是有可能一直加载不出图片？</p>
+<p>而用节流，无论你在这段时间里触发多少次，过了这段时间我一定会执行一次，这是不是就满足了我们的需求！</p>
+<p>注意书写形式</p>
+<p><strong>完整代码</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 滚动条用节流比较好</span></span><br><span class="line"><span class="built_in">window</span>.onscroll = throttle(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// console.log(img)</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>参考：<a href="https://www.jianshu.com/p/c8b86b09daf0" target="_blank" rel="noopener">https://www.jianshu.com/p/c8b86b09daf0</a></p>
+</blockquote>
+]]></content>
+      <tags>
+        <tag>图片懒加载 节流 防抖</tag>
       </tags>
   </entry>
   <entry>
@@ -369,65 +478,6 @@
 ]]></content>
       <tags>
         <tag>瀑布流 JS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>认清Token的职责</title>
-    <url>/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</url>
-    <content><![CDATA[<h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
-<p>一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：</p>
-<p><strong>1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;test1.demo.com:8080 与 http:&#x2F;&#x2F;test2.demo.com:8081 之间共享 cookie</span><br></pre></td></tr></table></figure>
-
-<p>注意：test1.demo.com 是 demo.com的子域名</p>
-<p><strong>2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。</strong></p>
-<p><strong>3、可能会遭到CSRF攻击（cookie劫持）</strong></p>
-<p>针对上面三个问题，我们可以想想如何解决：</p>
-<p>1、用token，可以跨域名。</p>
-<p>2、能不能不把session存在服务端，而存在客户端呢？</p>
-<p>3、不使用cookie了，不就能避免CSRF了嘛？</p>
-<a id="more"></a>
-
-<h2 id="什么是Token"><a href="#什么是Token" class="headerlink" title="什么是Token"></a>什么是Token</h2><p><strong>Token</strong>是服务端生成的一串字符串，以作客户端进行请求的一个<strong>令牌</strong>，当第一次登录后，服务器生成一个Token便将此Token返回给客户端，以后客户端只需带上这个Token前来请求数据即可，无需再次带上用户名和密码。</p>
-<p>优点：</p>
-<p><strong>1、可以跨域名</strong></p>
-<p><strong>2、服务端压力小，不用频繁的操作数据库，只要对token进行签名与“解密”</strong></p>
-<p><strong>3、规避了CSRF攻击。</strong></p>
-<p>以下讨论无状态Token</p>
-<blockquote>
-<p>注意，所谓无状态Token就是服务端不存储Token，而让客户端存储。</p>
-</blockquote>
-<p>你可能想问，如果服务端不存，那怎么验证Token呢？</p>
-<blockquote>
-<p>假设我用这个数据<code>{id:12345}</code>生成一个<code>token</code>,这个<code>token</code>分为三段信息：</p>
-<p>第一段是头部<code>Header</code>，包括的信息有签名使用的算法（HS256等）、令牌的类型等。</p>
-<p>第二部分就是我们的数据<code>Payload</code>通过<code>base64</code>加密。包括发行人、到期时间、发布时间以及自定义字段等数据。</p>
-<p>第三部分是加密的签名。通过<code>Header</code>和<code>Payload</code>以及我们的服务端的私钥生成。签名是对上面两部分数据签名，通过指定的算法生成哈希，以确保数据不会被篡改。</p>
-</blockquote>
-<p>因此，当服务端发回Token时，<strong>服务端再次对第一二部分进行数字签名，与第三部分对比</strong>。由于服务器私钥我们认为他是安全的，别人无法获得，因此当这两个值是一样的，则我们可以认为<strong>用户的登录信息没有被篡改。</strong>因此完成了Token的验证。</p>
-<p>综上，Token的作用是<strong>验证身份</strong>，<strong>安全问题不在它本身的职责范围内</strong></p>
-<h2 id="非常容易搞混的点"><a href="#非常容易搞混的点" class="headerlink" title="非常容易搞混的点"></a>非常容易搞混的点</h2><p>这个点便是<strong>安全问题。</strong></p>
-<p>你可能会想，倘若我发起<strong>中间人攻击</strong>：我截取了服务端返回的Token值，那么我便可以伪造真实的用户做一些坏事。</p>
-<p>没错，的确会这样，然而这不是Token的问题，你想，就算用cookie+session难道不会遇到这种问题嘛？</p>
-<p>那怎么办？</p>
-<p>事实上，这是<strong>HTTPS中的SSL/TLS防止的事情</strong>：通过对计算机中的网络流量进行加密（密钥协商是通过SSL握手协商而得），就算截取到了这个密文也无法进行破解，除非它们能够以某种方式获取服务器的私有SSL密钥的副本（不太可能）。</p>
-<p>同样还有一些别的安全防范手段：</p>
-<p>比如就不想别人知道<code>token</code>里面的数据，那就可以在给这个数据加一下密。或者担心这个<code>token</code>会被别人获取，照成这个用户的损失,那就需要在加别的手段来保证，比如通过验证来访的 ip ，比如设置更短的过期时间，比如你用的<code>HTTPS</code>，或者添加更多的验证等等。通过增加第三方的窃取成本，来降低被窃取的几率！</p>
-<p>这便是风控手段。</p>
-<p>用一个形象的例子来解释：</p>
-<blockquote>
-<p>你可以把<code>token</code>想象为银行的验钞机,验钞机的职责是验证假钞保证收进来的钱都是真钱，至于这个钱是偷的抢的,还是正常交易，那就不是验钞机管的了，那是警察叔叔管的。</p>
-</blockquote>
-<h2 id="扯床单"><a href="#扯床单" class="headerlink" title="扯床单"></a>扯床单</h2><p>什么叫扯床单？就是当你铺床时，左边的床单没平，于是你用力一拉…左边的床单是平了，然而右边又乱了……</p>
-<p><strong>Token规避了CSRF攻击，然而却增加了XSS攻击的风险</strong></p>
-<p>Token一般我们存在哪里？对！客户端。那客户端的哪里？</p>
-<p>存在cookie里吗？那本质上是不是又和cookie+session一样了？会造成token版的“CSRF”攻击吧。</p>
-<p>一般我们存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
-<p>这两个值是不会像cookie一样被自动携带访问某些网站的。</p>
-<p><strong>然而</strong>，这两个值是可以被JavaScript访问的，也就是说，仍然会有XSS攻击的风险！</p>
-]]></content>
-      <tags>
-        <tag>Token</tag>
       </tags>
   </entry>
 </search>

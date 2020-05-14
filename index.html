@@ -76,6 +76,115 @@
     
     
     
+    <article id="post-别再用对象代替Map了" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/"
+    >别再用对象代替Map了</a> 
+</h2>
+ 
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/" class="article-date">
+  <time datetime="2020-05-14T14:47:39.000Z" itemprop="datePublished">2020-05-14</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>其实没有标题那么夸张，大家根据喜欢与熟练程度自己选用就好。</p>
+<p>只是今天博主用对象代替Map被坑了，所以决心再也不偷懒了……</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>其实JS里的对象和Map都可以用来存键值对。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="string">'name'</span>:<span class="string">'养猪大师'</span>,</span><br><span class="line">     num:<span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="string">'name'</span>,<span class="string">'养猪大师'</span>)</span><br><span class="line">map.set(<span class="string">'num'</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>然而有区别，虽然存的都是key-value，但是在对象中，key的类型会被转化为<strong>字符串</strong></p>
+<p>但是map的key值不会被转换哦</p>
+</blockquote>
+<p>同样，我们也可以通过方法，判断容器里是否有某个key</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[name])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;  <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'name'</span>) <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'num'</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>但是细心的你有没有发现，我少写了一个</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你猜猜会输出啥？</p>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
+<p>上面这段代码会返回false。</p>
+<p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
+<p>你也许会恍然大悟，然后觉得这有什么，下次注意就好。</p>
+<p>但是这种东西很玄学的，可能你就真没注意到呢？</p>
+<p>如果一定要用obj来写，那我推荐用这样的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num]!==<span class="literal">undefined</span>)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="来做做这道题"><a href="#来做做这道题" class="headerlink" title="来做做这道题"></a>来做做这道题</h2><blockquote>
+<p>来源：leetcode:面试题48</p>
+<p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
+<p>示例 1:</p>
+<p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。<br>示例 2:</p>
+<p>输入: “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。<br>示例 3:</p>
+<p>输入: “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。<br>     请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。</p>
+<p>提示：</p>
+<p>s.length &lt;= 40000</p>
+</blockquote>
+<p>解答可以自行百度，大致思路是 滑动窗口+hash表优化。</p>
+<p>然而博主v1.0的版本如何都无法通过：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> hash = []</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;</span><br><span class="line">       <span class="keyword">if</span>(hash[s[tail]])&#123;</span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,hash[s[tail]]+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">       hash[s[tail]] = tail</span><br><span class="line">       max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>原因正是，<strong>返回的value的值是0，破坏了我的计划！</strong>，让我整整找了半小时。</p>
+<p>老老实实用Map吧</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;      </span><br><span class="line">       <span class="keyword">if</span>(map.has(s[tail]))&#123;</span><br><span class="line">           <span class="comment">// ！！！注意要max</span></span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,map.get(s[tail])+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">      map.set(s[tail],tail)</span><br><span class="line">      max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Map/" rel="tag">Map</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+  
+  
+
+</article>
+    
     <article id="post-WebRTC的三种架构" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 

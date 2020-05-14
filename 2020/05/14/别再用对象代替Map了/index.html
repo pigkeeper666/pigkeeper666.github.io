@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    WebRTC的三种架构 |  养猪大师
+    别再用对象代替Map了 |  养猪大师
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -42,7 +42,7 @@
   <div id="app">
     <main class="content on">
       <section class="outer">
-  <article id="post-WebRTC的三种架构" class="article article-type-post" itemscope
+  <article id="post-别再用对象代替Map了" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -50,7 +50,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  WebRTC的三种架构
+  别再用对象代替Map了
 </h1>
  
 
@@ -59,8 +59,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/" class="article-date">
-  <time datetime="2020-05-13T12:09:57.000Z" itemprop="datePublished">2020-05-13</time>
+      <a href="/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/" class="article-date">
+  <time datetime="2020-05-14T14:47:39.000Z" itemprop="datePublished">2020-05-14</time>
 </a>
       
       
@@ -70,7 +70,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">972</span>
+            <span class="post-count">701</span>
         </span>
     </span>
 
@@ -79,7 +79,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">3 min</span>
+            <span class="post-count">2 min</span>
         </span>
     </span>
 </div>
@@ -104,47 +104,48 @@
       
 
       
-      <h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
-<p>本文参考：</p>
-<p><a href="https://www.cnblogs.com/yiyi17/p/12076657.html" target="_blank" rel="noopener">https://www.cnblogs.com/yiyi17/p/12076657.html</a></p>
-<p><a href="https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html" target="_blank" rel="noopener">https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html</a></p>
-</blockquote>
-<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><p>WebRTC 本身提供的是<strong>1 对 1</strong> 的通信模型，在 STUN/TURN 的辅助下，如果能实现 NAT 穿越，那么两个浏览器是可以直接进行媒体数据交换的；如果不能实现 NAT 穿越，那么只能通过 TURN 服务器进行数据转发的方式实现通信。目前来看，Google 开源的用于学习和研究的项目基本都是基于 STUN/TURN 的 1 对 1 通信。</p>
-<p>一些多人场景中，倘若想实现多对多，那怎么办？</p>
-<h2 id="Mesh架构"><a href="#Mesh架构" class="headerlink" title="Mesh架构"></a>Mesh架构</h2><p>最容易想到的便是，对于多人会议中的每个人，都与剩余的人进行P2P的连接。如下图</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></p>
-<a id="more"></a>
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>其实没有标题那么夸张，大家根据喜欢与熟练程度自己选用就好。</p>
+<p>只是今天博主用对象代替Map被坑了，所以决心再也不偷懒了……</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>其实JS里的对象和Map都可以用来存键值对。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="string">'name'</span>:<span class="string">'养猪大师'</span>,</span><br><span class="line">     num:<span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="string">'name'</span>,<span class="string">'养猪大师'</span>)</span><br><span class="line">map.set(<span class="string">'num'</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
 
-<p>即多个终端两两进行连接，因而形成了网状结构。</p>
-<p>该方案的优势：</p>
-<p>1、不需要服务器中转服务器（然而一开始的交换信令和NAT穿越还是需要服务器的），实现简单。</p>
-<p>2、充分利用了客户端的带宽资源，节省了服务器带宽的资源。</p>
-<p>3、由于媒体流信息是端到端传输的，不用中转服务器，因而更加的<strong>隐私、安全</strong></p>
-<p>该方案的劣势：</p>
-<p>1、对于每一个人来说，都需要给剩下的人每人发一份自己的媒体流，对上行的带宽占用很大（上下行带宽可以理解为上传与下载带宽）。当人多的时候，占用的宽带就会很大。</p>
-<p>2、由于是客户本地对媒体流进行解码编码，因此人多的时候对CPU、内存资源会占用很多。</p>
-<p>3*、在多人通信时，如果有部分人不能实现 NAT 穿越，但还想让这些人与其他人互通，就显得很麻烦，需要做出更多的可靠性设计。</p>
-<h2 id="MCU架构"><a href="#MCU架构" class="headerlink" title="MCU架构"></a>MCU架构</h2><p>MCU架构便是有一个中心的媒体服务器，接受每个共享端的媒体流。在这个服务上，对所有人的媒体流进行解码、混合、编码，再发送给所有人。如下图：</p>
-<p><a href="https://sbimg.cn/image/myzk8" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></a></p>
-<p>该方案的优势：</p>
-<p>1、连接数较少（可以对比一下MCU和MESH的图），对于浏览器的压力较小。</p>
-<p>2、<strong>同步</strong>的音视频通讯，也就是所有参加的人看到的是相同的画面，适合多人视频会议。</p>
-<p>3*、作为音视频网关，通过解码、再编码可以屏蔽不同编解码设备的差异化，满足更多客户的集成需求，提升用户体验和产品竞争力。</p>
-<p>劣势：</p>
-<p>1、中间的服务器要干很多的事情，压力很大，需要有较高的配置。</p>
-<p>2、会有延迟，因为服务器处理、传输会带来延迟。<strong>与同步的优点是可以共存的，不要想岔了</strong></p>
-<p>3、相比MESH架构，牺牲了隐私与安全。</p>
-<h2 id="SFU架构"><a href="#SFU架构" class="headerlink" title="SFU架构"></a>SFU架构</h2><p>SFU架构类似于一个媒体流路由器，与MCU不同的是<strong>SFU服务器不用编码混合等等，只需要转发给其他终端</strong></p>
-<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-202806.png" alt="-2020-05-13-202806.png"></p>
-<p>优势：</p>
-<p>1、相比于MCU架构，由于是数据包直接转发，不需要编码解码，对服务器CPU资源消耗小。</p>
-<p>2、相比于MCU架构，直接转发降低了延迟，提高了实时性。</p>
-<p>3*、最后带来了很大的灵活性，能够更好地适应不同的网络状况和终端类型。</p>
-<p>劣势：</p>
-<p>1、由于是数据包转发，参与人观看多路视频可能会出现不同步。对于相同的视频流，不同的参与人看到的画面可能会不一致。</p>
-<p>2、相比MESH架构，牺牲了隐私与安全。</p>
-<p>3*、消耗带宽也比较大</p>
-<h2 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h2><p>我个人的项目目前正考虑升级架构，升级完成会更新。</p>
+<blockquote>
+<p>然而有区别，虽然存的都是key-value，但是在对象中，key的类型会被转化为<strong>字符串</strong></p>
+<p>但是map的key值不会被转换哦</p>
+</blockquote>
+<p>同样，我们也可以通过方法，判断容器里是否有某个key</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[name])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;  <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'name'</span>) <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'num'</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>但是细心的你有没有发现，我少写了一个</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你猜猜会输出啥？</p>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
+<p>上面这段代码会返回false。</p>
+<p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
+<p>你也许会恍然大悟，然后觉得这有什么，下次注意就好。</p>
+<p>但是这种东西很玄学的，可能你就真没注意到呢？</p>
+<p>如果一定要用obj来写，那我推荐用这样的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num]!==<span class="literal">undefined</span>)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="来做做这道题"><a href="#来做做这道题" class="headerlink" title="来做做这道题"></a>来做做这道题</h2><blockquote>
+<p>来源：leetcode:面试题48</p>
+<p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
+<p>示例 1:</p>
+<p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。<br>示例 2:</p>
+<p>输入: “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。<br>示例 3:</p>
+<p>输入: “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。<br>     请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。</p>
+<p>提示：</p>
+<p>s.length &lt;= 40000</p>
+</blockquote>
+<p>解答可以自行百度，大致思路是 滑动窗口+hash表优化。</p>
+<p>然而博主v1.0的版本如何都无法通过：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> hash = []</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;</span><br><span class="line">       <span class="keyword">if</span>(hash[s[tail]])&#123;</span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,hash[s[tail]]+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">       hash[s[tail]] = tail</span><br><span class="line">       max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>原因正是，<strong>返回的value的值是0，破坏了我的计划！</strong>，让我整整找了半小时。</p>
+<p>老老实实用Map吧</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;      </span><br><span class="line">       <span class="keyword">if</span>(map.has(s[tail]))&#123;</span><br><span class="line">           <span class="comment">// ！！！注意要max</span></span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,map.get(s[tail])+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">      map.set(s[tail],tail)</span><br><span class="line">      max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->
@@ -209,14 +210,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WebRTC/" rel="tag">WebRTC</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Map/" rel="tag">Map</a></li></ul>
 
 
     </footer>
@@ -227,19 +228,10 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            别再用对象代替Map了
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/05/12/Vue-nextTick/" class="article-nav-link">
+      <a href="/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Vue.nextTick</div>
+        <div class="article-nav-title">WebRTC的三种架构</div>
       </a>
     
   </nav>
