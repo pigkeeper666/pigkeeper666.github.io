@@ -1,6 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>图片懒加载与防抖节流</title>
+    <url>/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
+<p>下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。</p>
+<p>然而继续往下拉动后，这张图片会进行加载</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/10/MDTCPC1OMCGBM_WHPX.png" alt="MDTCPC1OMCGBM_WHPX.png"></p>
+<a id="more"></a>
+
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>其实主要的思想与我之前的文章<a href="https://www.pigkeeper.xyz/2020/05/09/瀑布流效果/" target="_blank" rel="noopener">纯JS瀑布流效果与动态加载</a>里的动态加载非常的相似，都是计算一个滚动的阈值，达到这个阈值后便进行图片的加载。</p>
+<p><strong>首先我们搭建简单的html结构</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以注意到，img的src属性都是”./default.png”，这是一张默认图，也就是上图的蓝色图片，而图片真正的src存在data-src中。data-src是一个自定义的数据，当我们获取到某个img的dom节点对象时，我们可以通过一些语句来获得data-src的值，方法是：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">console</span>.log(img.dataset.src)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会输出data-src的内容</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>其次是css</strong></p>
+<p>这里只是限定图片的大小，并居中显示</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">        <span class="selector-tag">img</span> &#123;</span><br><span class="line">            <span class="attribute">width</span>: <span class="number">230px</span>;</span><br><span class="line">            <span class="attribute">height</span>: <span class="number">320px</span>;</span><br><span class="line">            <span class="attribute">display</span>: block;</span><br><span class="line">            <span class="attribute">margin-top</span>: <span class="number">10px</span>;</span><br><span class="line">            ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-class">.box</span> &#123;</span><br><span class="line">            <span class="attribute">display</span>: flex;</span><br><span class="line">            <span class="attribute">flex-direction</span>: column;</span><br><span class="line">            <span class="attribute">align-items</span>: center;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>js部分</strong></p>
+<p>至此，我们很容易的想到，如果要实现图片的懒加载，我们只需要监听滚动事件，当触发某个条件时，我们就把img标签的src属性值替换为data-src的值，这样就能加载图片了。</p>
+<p>那么，这个条件是什么呢？</p>
+<p>同样用一张图来说明：</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/10/1.png" alt="1.png"></p>
+<p>其中offsetTop、halfHeight、clientHeight都不会变，只有scrollTop会变</p>
+<p>故当<strong>offsetTop + halfHeight &lt; scrollTop + clientHeight</strong>时，加载图片。</p>
+<p><strong>以下是完整代码</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取所有的img节点</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// 将伪数组转化为数组</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 图片高度的一半</span></span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="comment">// 临界条件</span></span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            <span class="comment">// 替换src</span></span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>至此，基本完成了图片的懒加载。</p>
+<h2 id="防抖与节流"><a href="#防抖与节流" class="headerlink" title="防抖与节流"></a>防抖与节流</h2><blockquote>
+<p> 在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。</p>
+<p>一般可以用防抖和节流来解决这个问题。</p>
+</blockquote>
+<p><strong>防抖（debounce）</strong></p>
+<p><strong>所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间，用定时器实现。</strong></p>
+<p>下面是具体的实现，注意看我的注释。闭包是为了保留timer这个状态，而apply的作用在注释中有写到，可以仔细去品味一下。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 闭包</span></span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="comment">// !!!!很重要</span></span><br><span class="line">    <span class="comment">// 这个函数是事件对象调用的函数，事件会给这个函数一个参数e 下面可以用arguments拿到</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            clearInterval(timer)</span><br><span class="line">        &#125;</span><br><span class="line">        timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 由于是箭头函数，这个this和arguments是从上面继承下来的</span></span><br><span class="line">            <span class="comment">// 用apply是为了让 debounce 函数最终返回的函数 this 指向不变以及依旧能接受到 e 参数。</span></span><br><span class="line">            <span class="comment">// 这个arguments就是 e</span></span><br><span class="line">            fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            timer = <span class="literal">null</span></span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>节流（throttle）</strong></p>
+<p><strong>所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数。</strong></p>
+<p>懂了防抖，节流也会相对容易理解。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 节流</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">throttle</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> flag = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!flag) <span class="keyword">return</span></span><br><span class="line">        flag = <span class="literal">false</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            func.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            flag = <span class="literal">true</span></span><br><span class="line">        &#125;, wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="图片懒加载的优化"><a href="#图片懒加载的优化" class="headerlink" title="图片懒加载的优化"></a>图片懒加载的优化</h2><p>上面我们实现的懒加载，是依靠监听滚动条。当我们滚动时，会频繁的触发计算，是否可以优化，让它少触发几次？那我们是应该用防抖还是节流呢？</p>
+<p>想一下，如果用防抖，会导致一直触发事件，一直重置定时器，是不是有可能一直加载不出图片？</p>
+<p>而用节流，无论你在这段时间里触发多少次，过了这段时间我一定会执行一次，这是不是就满足了我们的需求！</p>
+<p>注意书写形式</p>
+<p><strong>完整代码</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 滚动条用节流比较好</span></span><br><span class="line"><span class="built_in">window</span>.onscroll = throttle(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// console.log(img)</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>参考：<a href="https://www.jianshu.com/p/c8b86b09daf0" target="_blank" rel="noopener">https://www.jianshu.com/p/c8b86b09daf0</a></p>
+</blockquote>
+]]></content>
+      <tags>
+        <tag>图片懒加载 节流 防抖</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WebRTC的三种架构</title>
+    <url>/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/</url>
+    <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
+<p>本文参考：</p>
+<p><a href="https://www.cnblogs.com/yiyi17/p/12076657.html" target="_blank" rel="noopener">https://www.cnblogs.com/yiyi17/p/12076657.html</a></p>
+<p><a href="https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html" target="_blank" rel="noopener">https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html</a></p>
+</blockquote>
+<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><p>WebRTC 本身提供的是<strong>1 对 1</strong> 的通信模型，在 STUN/TURN 的辅助下，如果能实现 NAT 穿越，那么两个浏览器是可以直接进行媒体数据交换的；如果不能实现 NAT 穿越，那么只能通过 TURN 服务器进行数据转发的方式实现通信。目前来看，Google 开源的用于学习和研究的项目基本都是基于 STUN/TURN 的 1 对 1 通信。</p>
+<p>一些多人场景中，倘若想实现多对多，那怎么办？</p>
+<h2 id="Mesh架构"><a href="#Mesh架构" class="headerlink" title="Mesh架构"></a>Mesh架构</h2><p>最容易想到的便是，对于多人会议中的每个人，都与剩余的人进行P2P的连接。如下图</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></p>
+<a id="more"></a>
+
+<p>即多个终端两两进行连接，因而形成了网状结构。</p>
+<p>该方案的优势：</p>
+<p>1、不需要服务器中转服务器（然而一开始的交换信令和NAT穿越还是需要服务器的），实现简单。</p>
+<p>2、充分利用了客户端的带宽资源，节省了服务器带宽的资源。</p>
+<p>3、由于媒体流信息是端到端传输的，不用中转服务器，因而更加的<strong>隐私、安全</strong></p>
+<p>该方案的劣势：</p>
+<p>1、对于每一个人来说，都需要给剩下的人每人发一份自己的媒体流，对上行的带宽占用很大（上下行带宽可以理解为上传与下载带宽）。当人多的时候，占用的宽带就会很大。</p>
+<p>2、由于是客户本地对媒体流进行解码编码，因此人多的时候对CPU、内存资源会占用很多。</p>
+<p>3*、在多人通信时，如果有部分人不能实现 NAT 穿越，但还想让这些人与其他人互通，就显得很麻烦，需要做出更多的可靠性设计。</p>
+<h2 id="MCU架构"><a href="#MCU架构" class="headerlink" title="MCU架构"></a>MCU架构</h2><p>MCU架构便是有一个中心的媒体服务器，接受每个共享端的媒体流。在这个服务上，对所有人的媒体流进行解码、混合、编码，再发送给所有人。如下图：</p>
+<p><a href="https://sbimg.cn/image/myzk8" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></a></p>
+<p>该方案的优势：</p>
+<p>1、连接数较少（可以对比一下MCU和MESH的图），对于浏览器的压力较小。</p>
+<p>2、<strong>同步</strong>的音视频通讯，也就是所有参加的人看到的是相同的画面，适合多人视频会议。</p>
+<p>3*、作为音视频网关，通过解码、再编码可以屏蔽不同编解码设备的差异化，满足更多客户的集成需求，提升用户体验和产品竞争力。</p>
+<p>劣势：</p>
+<p>1、中间的服务器要干很多的事情，压力很大，需要有较高的配置。</p>
+<p>2、会有延迟，因为服务器处理、传输会带来延迟。<strong>与同步的优点是可以共存的，不要想岔了</strong></p>
+<p>3、相比MESH架构，牺牲了隐私与安全。</p>
+<h2 id="SFU架构"><a href="#SFU架构" class="headerlink" title="SFU架构"></a>SFU架构</h2><p>SFU架构类似于一个媒体流路由器，与MCU不同的是<strong>SFU服务器不用编码混合等等，只需要转发给其他终端</strong></p>
+<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-202806.png" alt="-2020-05-13-202806.png"></p>
+<p>优势：</p>
+<p>1、相比于MCU架构，由于是数据包直接转发，不需要编码解码，对服务器CPU资源消耗小。</p>
+<p>2、相比于MCU架构，直接转发降低了延迟，提高了实时性。</p>
+<p>3*、最后带来了很大的灵活性，能够更好地适应不同的网络状况和终端类型。</p>
+<p>劣势：</p>
+<p>1、由于是数据包转发，参与人观看多路视频可能会出现不同步。对于相同的视频流，不同的参与人看到的画面可能会不一致。</p>
+<p>2、相比MESH架构，牺牲了隐私与安全。</p>
+<p>3*、消耗带宽也比较大</p>
+<h2 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h2><p>我个人的项目目前正考虑升级架构，升级完成会更新。</p>
+]]></content>
+      <tags>
+        <tag>WebRTC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Vue.nextTick</title>
     <url>/2020/05/12/Vue-nextTick/</url>
     <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
@@ -90,6 +201,8 @@
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>你猜猜会输出啥？</p>
+<a id="more"></a>
+
 <h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
 <p>上面这段代码会返回false。</p>
 <p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
@@ -119,6 +232,17 @@
 ]]></content>
       <tags>
         <tag>Map</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开篇！初心与目标</title>
+    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
+<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
+<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
+]]></content>
+      <tags>
+        <tag>测试</tag>
       </tags>
   </entry>
   <entry>
@@ -205,17 +329,6 @@
       </tags>
   </entry>
   <entry>
-    <title>开篇！初心与目标</title>
-    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
-<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
-<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
-]]></content>
-      <tags>
-        <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>认清Token的职责</title>
     <url>/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</url>
     <content><![CDATA[<h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
@@ -272,117 +385,6 @@
 ]]></content>
       <tags>
         <tag>Token</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WebRTC的三种架构</title>
-    <url>/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/</url>
-    <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
-<p>本文参考：</p>
-<p><a href="https://www.cnblogs.com/yiyi17/p/12076657.html" target="_blank" rel="noopener">https://www.cnblogs.com/yiyi17/p/12076657.html</a></p>
-<p><a href="https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html" target="_blank" rel="noopener">https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html</a></p>
-</blockquote>
-<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><p>WebRTC 本身提供的是<strong>1 对 1</strong> 的通信模型，在 STUN/TURN 的辅助下，如果能实现 NAT 穿越，那么两个浏览器是可以直接进行媒体数据交换的；如果不能实现 NAT 穿越，那么只能通过 TURN 服务器进行数据转发的方式实现通信。目前来看，Google 开源的用于学习和研究的项目基本都是基于 STUN/TURN 的 1 对 1 通信。</p>
-<p>一些多人场景中，倘若想实现多对多，那怎么办？</p>
-<h2 id="Mesh架构"><a href="#Mesh架构" class="headerlink" title="Mesh架构"></a>Mesh架构</h2><p>最容易想到的便是，对于多人会议中的每个人，都与剩余的人进行P2P的连接。如下图</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></p>
-<a id="more"></a>
-
-<p>即多个终端两两进行连接，因而形成了网状结构。</p>
-<p>该方案的优势：</p>
-<p>1、不需要服务器中转服务器（然而一开始的交换信令和NAT穿越还是需要服务器的），实现简单。</p>
-<p>2、充分利用了客户端的带宽资源，节省了服务器带宽的资源。</p>
-<p>3、由于媒体流信息是端到端传输的，不用中转服务器，因而更加的<strong>隐私、安全</strong></p>
-<p>该方案的劣势：</p>
-<p>1、对于每一个人来说，都需要给剩下的人每人发一份自己的媒体流，对上行的带宽占用很大（上下行带宽可以理解为上传与下载带宽）。当人多的时候，占用的宽带就会很大。</p>
-<p>2、由于是客户本地对媒体流进行解码编码，因此人多的时候对CPU、内存资源会占用很多。</p>
-<p>3*、在多人通信时，如果有部分人不能实现 NAT 穿越，但还想让这些人与其他人互通，就显得很麻烦，需要做出更多的可靠性设计。</p>
-<h2 id="MCU架构"><a href="#MCU架构" class="headerlink" title="MCU架构"></a>MCU架构</h2><p>MCU架构便是有一个中心的媒体服务器，接受每个共享端的媒体流。在这个服务上，对所有人的媒体流进行解码、混合、编码，再发送给所有人。如下图：</p>
-<p><a href="https://sbimg.cn/image/myzk8" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></a></p>
-<p>该方案的优势：</p>
-<p>1、连接数较少（可以对比一下MCU和MESH的图），对于浏览器的压力较小。</p>
-<p>2、<strong>同步</strong>的音视频通讯，也就是所有参加的人看到的是相同的画面，适合多人视频会议。</p>
-<p>3*、作为音视频网关，通过解码、再编码可以屏蔽不同编解码设备的差异化，满足更多客户的集成需求，提升用户体验和产品竞争力。</p>
-<p>劣势：</p>
-<p>1、中间的服务器要干很多的事情，压力很大，需要有较高的配置。</p>
-<p>2、会有延迟，因为服务器处理、传输会带来延迟。<strong>与同步的优点是可以共存的，不要想岔了</strong></p>
-<p>3、相比MESH架构，牺牲了隐私与安全。</p>
-<h2 id="SFU架构"><a href="#SFU架构" class="headerlink" title="SFU架构"></a>SFU架构</h2><p>SFU架构类似于一个媒体流路由器，与MCU不同的是<strong>SFU服务器不用编码混合等等，只需要转发给其他终端</strong></p>
-<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-202806.png" alt="-2020-05-13-202806.png"></p>
-<p>优势：</p>
-<p>1、相比于MCU架构，由于是数据包直接转发，不需要编码解码，对服务器CPU资源消耗小。</p>
-<p>2、相比于MCU架构，直接转发降低了延迟，提高了实时性。</p>
-<p>3*、最后带来了很大的灵活性，能够更好地适应不同的网络状况和终端类型。</p>
-<p>劣势：</p>
-<p>1、由于是数据包转发，参与人观看多路视频可能会出现不同步。对于相同的视频流，不同的参与人看到的画面可能会不一致。</p>
-<p>2、相比MESH架构，牺牲了隐私与安全。</p>
-<p>3*、消耗带宽也比较大</p>
-<h2 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h2><p>我个人的项目目前正考虑升级架构，升级完成会更新。</p>
-]]></content>
-      <tags>
-        <tag>WebRTC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>图片懒加载与防抖节流</title>
-    <url>/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
-<p>下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。</p>
-<p>然而继续往下拉动后，这张图片会进行加载</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/10/MDTCPC1OMCGBM_WHPX.png" alt="MDTCPC1OMCGBM_WHPX.png"></p>
-<a id="more"></a>
-
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>其实主要的思想与我之前的文章<a href="https://www.pigkeeper.xyz/2020/05/09/瀑布流效果/" target="_blank" rel="noopener">纯JS瀑布流效果与动态加载</a>里的动态加载非常的相似，都是计算一个滚动的阈值，达到这个阈值后便进行图片的加载。</p>
-<p><strong>首先我们搭建简单的html结构</strong></p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>可以注意到，img的src属性都是”./default.png”，这是一张默认图，也就是上图的蓝色图片，而图片真正的src存在data-src中。data-src是一个自定义的数据，当我们获取到某个img的dom节点对象时，我们可以通过一些语句来获得data-src的值，方法是：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">console</span>.log(img.dataset.src)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会输出data-src的内容</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>其次是css</strong></p>
-<p>这里只是限定图片的大小，并居中显示</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">        <span class="selector-tag">img</span> &#123;</span><br><span class="line">            <span class="attribute">width</span>: <span class="number">230px</span>;</span><br><span class="line">            <span class="attribute">height</span>: <span class="number">320px</span>;</span><br><span class="line">            <span class="attribute">display</span>: block;</span><br><span class="line">            <span class="attribute">margin-top</span>: <span class="number">10px</span>;</span><br><span class="line">            ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-class">.box</span> &#123;</span><br><span class="line">            <span class="attribute">display</span>: flex;</span><br><span class="line">            <span class="attribute">flex-direction</span>: column;</span><br><span class="line">            <span class="attribute">align-items</span>: center;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br></pre></td></tr></table></figure>
-
-<p><strong>js部分</strong></p>
-<p>至此，我们很容易的想到，如果要实现图片的懒加载，我们只需要监听滚动事件，当触发某个条件时，我们就把img标签的src属性值替换为data-src的值，这样就能加载图片了。</p>
-<p>那么，这个条件是什么呢？</p>
-<p>同样用一张图来说明：</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/10/1.png" alt="1.png"></p>
-<p>其中offsetTop、halfHeight、clientHeight都不会变，只有scrollTop会变</p>
-<p>故当<strong>offsetTop + halfHeight &lt; scrollTop + clientHeight</strong>时，加载图片。</p>
-<p><strong>以下是完整代码</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取所有的img节点</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// 将伪数组转化为数组</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 图片高度的一半</span></span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="comment">// 临界条件</span></span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            <span class="comment">// 替换src</span></span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
-
-<p>至此，基本完成了图片的懒加载。</p>
-<h2 id="防抖与节流"><a href="#防抖与节流" class="headerlink" title="防抖与节流"></a>防抖与节流</h2><blockquote>
-<p> 在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。</p>
-<p>一般可以用防抖和节流来解决这个问题。</p>
-</blockquote>
-<p><strong>防抖（debounce）</strong></p>
-<p><strong>所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间，用定时器实现。</strong></p>
-<p>下面是具体的实现，注意看我的注释。闭包是为了保留timer这个状态，而apply的作用在注释中有写到，可以仔细去品味一下。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 闭包</span></span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="comment">// !!!!很重要</span></span><br><span class="line">    <span class="comment">// 这个函数是事件对象调用的函数，事件会给这个函数一个参数e 下面可以用arguments拿到</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            clearInterval(timer)</span><br><span class="line">        &#125;</span><br><span class="line">        timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 由于是箭头函数，这个this和arguments是从上面继承下来的</span></span><br><span class="line">            <span class="comment">// 用apply是为了让 debounce 函数最终返回的函数 this 指向不变以及依旧能接受到 e 参数。</span></span><br><span class="line">            <span class="comment">// 这个arguments就是 e</span></span><br><span class="line">            fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            timer = <span class="literal">null</span></span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>节流（throttle）</strong></p>
-<p><strong>所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数。</strong></p>
-<p>懂了防抖，节流也会相对容易理解。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 节流</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">throttle</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> flag = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!flag) <span class="keyword">return</span></span><br><span class="line">        flag = <span class="literal">false</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            func.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            flag = <span class="literal">true</span></span><br><span class="line">        &#125;, wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="图片懒加载的优化"><a href="#图片懒加载的优化" class="headerlink" title="图片懒加载的优化"></a>图片懒加载的优化</h2><p>上面我们实现的懒加载，是依靠监听滚动条。当我们滚动时，会频繁的触发计算，是否可以优化，让它少触发几次？那我们是应该用防抖还是节流呢？</p>
-<p>想一下，如果用防抖，会导致一直触发事件，一直重置定时器，是不是有可能一直加载不出图片？</p>
-<p>而用节流，无论你在这段时间里触发多少次，过了这段时间我一定会执行一次，这是不是就满足了我们的需求！</p>
-<p>注意书写形式</p>
-<p><strong>完整代码</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 滚动条用节流比较好</span></span><br><span class="line"><span class="built_in">window</span>.onscroll = throttle(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// console.log(img)</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p>参考：<a href="https://www.jianshu.com/p/c8b86b09daf0" target="_blank" rel="noopener">https://www.jianshu.com/p/c8b86b09daf0</a></p>
-</blockquote>
-]]></content>
-      <tags>
-        <tag>图片懒加载 节流 防抖</tag>
       </tags>
   </entry>
   <entry>

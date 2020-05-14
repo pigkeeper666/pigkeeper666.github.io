@@ -120,6 +120,8 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>你猜猜会输出啥？</p>
+<a id="more"></a>
+
 <h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
 <p>上面这段代码会返回false。</p>
 <p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
