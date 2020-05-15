@@ -70,7 +70,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.4k</span>
+            <span class="post-count">1.5k</span>
         </span>
     </span>
 
@@ -156,10 +156,10 @@
 <p>然而，这张图片就是画不出来！</p>
 <p>原因正是：<strong>图片作为一个资源请求，在js中加载时，自然也会有一个图片加载的时间。</strong></p>
 <p><strong>但是因为没有限制，极大的情况是当图片还没有加载完毕就调用了drawImage，此方法他是不起作用的。</strong></p>
-<p><strong>解决方法1</strong>：上面有说<code>window.onload</code>可以保证里面代码执行的时候，图片已经加载，故只要在里面调用<code>context.drawImage(img,dx,dy)</code></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">　　context.drawImage()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>解决方法1</strong>：上面有说<code>window.onload</code>可以保证里面代码执行的时候，图片已经加载，故只要在里面调用<code>context.drawImage(img,dx,dy)</code>。这种做法解决的核心是onload，将图片和drawImage分开加载，img先加载，确保加载完毕以后再使用绘图</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=<span class="string">"./pig.jpg"</span>&gt;</span><br><span class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">　　context.drawImage()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><strong>解决方法2</strong>：使用img.onload，等待图片资源加载完了再调用drawImage。</p>
+<p><strong>解决方法2</strong>：使用img.onload，等待图片资源加载完了再调用drawImage。<strong>使用img的加载事件，监听图片加载</strong>成功后，再执行canvas的绘图效果.并且这种方法靠谱一些。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="keyword">let</span> canvas = getElementById(<span class="string">'mycanvas'</span>)</span><br><span class="line">    <span class="keyword">let</span> context = canvas.getContext(<span class="string">'2d'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// new 一个 Image对象</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image()</span><br><span class="line">    <span class="comment">// 为img添加src(本地图片)</span></span><br><span class="line">    img.src = <span class="string">'./pig.jpg'</span></span><br><span class="line">	<span class="comment">// 等待图片加载完成</span></span><br><span class="line">	img.onload=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        context.drawImage(img,<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 
 
