@@ -76,6 +76,83 @@
     
     
     
+    <article id="post-css-js-媒体资源会阻塞HTML的解析吗" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/"
+    >css/js/媒体资源会阻塞HTML的解析吗?</a> 
+</h2>
+ 
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/" class="article-date">
+  <time datetime="2020-05-15T06:33:59.000Z" itemprop="datePublished">2020-05-15</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有复习到浏览器对CSS、JS、媒体资源文件（图片、音频等）的加载和解析。</p>
+<p>当我们解析HTML的时候，遇到上述资源，会不会阻塞HTML解析呢？</p>
+<h2 id="浏览器渲染流程"><a href="#浏览器渲染流程" class="headerlink" title="浏览器渲染流程"></a>浏览器渲染流程</h2><p><a href="https://sbimg.cn/image/pXVko" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/15/3987507-1bfba2f13098339f.jpg" alt="3987507-1bfba2f13098339f.jpg"></a></p>
+<p>1、<strong>解析HTML生成DOM树</strong>：渲染引擎首先解析HTML文档，生成DOM树</p>
+<p>2、<strong>生成CSSOM树</strong>：无论是内联式、外联是还是嵌入式引入的css样式都会被解析生成CSSOM树。注意，<strong>该步操作与步骤一是并行的</strong></p>
+<p>3、<strong>构建Render树</strong>：根据DOM树与CSSOM树生成另一颗用于渲染的Render树。</p>
+<p>4、<strong>布局Render树</strong>：然后对渲染树的每个节点进行布局处理，确定再屏幕上显示的位置。当然这一步还包括一些合成层的操作（新建图层处理一些特殊样势，比如说透明度、transform这种）。</p>
+<p>5、<strong>绘制Render树</strong>：绘制出一个个节点</p>
+      
+      <a class="article-more-link" href="/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+  
+  
+
+</article>
+    
     <article id="post-别再用对象代替Map了" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
