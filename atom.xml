@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-17T09:48:27.027Z</updated>
+  <updated>2020-05-17T09:50:27.560Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,13 +21,35 @@
     <link href="http://yoursite.com/2020/05/17/JS%E7%9A%84%E9%9A%90%E5%BC%8F%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/"/>
     <id>http://yoursite.com/2020/05/17/JS%E7%9A%84%E9%9A%90%E5%BC%8F%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/</id>
     <published>2020-05-17T09:48:26.000Z</published>
-    <updated>2020-05-17T09:48:27.027Z</updated>
+    <updated>2020-05-17T09:50:27.560Z</updated>
     
     <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;主要参考：&lt;a href=&quot;https://juejin.im/post/5a7172d9f265da3e3245cbca&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://juejin.im/post/5a7172d9f265da3e3245cbca&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;JS数据类型&quot;&gt;&lt;a href=&quot;#JS数据类型&quot; class=&quot;headerlink&quot; title=&quot;JS数据类型&quot;&gt;&lt;/a&gt;JS数据类型&lt;/h2&gt;&lt;p&gt;js中有7种数据类型，可以分为两类：原始类型、对象类型：&lt;/p&gt;
+&lt;p&gt;基础类型(原始值)：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;Undefined、 Null、 String、 Number、 Boolean、 Symbol (es6新出的，本文不讨论这种类型)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;复杂类型(对象值)：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;object&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;三种隐式转换&quot;&gt;&lt;a href=&quot;#三种隐式转换&quot; class=&quot;headerlink&quot; title=&quot;三种隐式转换&quot;&gt;&lt;/a&gt;三种隐式转换&lt;/h2&gt;&lt;p&gt;涉及隐式转换最多的两个运算符 + 和 ==。&lt;/p&gt;
+&lt;p&gt;+运算符即可数字相加，也可以字符串相加。所以转换时很麻烦。&lt;/p&gt;
+&lt;p&gt;== 不同于===，故也存在隐式转换。&lt;/p&gt;
+&lt;p&gt;*- / 这些运算符只会针对number类型，故转换的结果只能是转换成number类型。&lt;/p&gt;
+&lt;p&gt;那么转换的规则到底是什么呢？&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;隐式转换主要涉及三种转换&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;1、将值转为原始值，ToPrimitive()&lt;/p&gt;
+&lt;p&gt;2、将值转为数字，ToNumber()&lt;/p&gt;
+&lt;p&gt;3、将值转为数字，ToString()&lt;/p&gt;
     
     </summary>
     
     
+    
+      <category term="JavaScript" scheme="http://yoursite.com/tags/JavaScript/"/>
     
   </entry>
   

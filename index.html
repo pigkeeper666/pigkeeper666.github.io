@@ -112,6 +112,27 @@
       
 
       
+      <blockquote>
+<p>主要参考：<a href="https://juejin.im/post/5a7172d9f265da3e3245cbca" target="_blank" rel="noopener">https://juejin.im/post/5a7172d9f265da3e3245cbca</a></p>
+</blockquote>
+<h2 id="JS数据类型"><a href="#JS数据类型" class="headerlink" title="JS数据类型"></a>JS数据类型</h2><p>js中有7种数据类型，可以分为两类：原始类型、对象类型：</p>
+<p>基础类型(原始值)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Undefined、 Null、 String、 Number、 Boolean、 Symbol (es6新出的，本文不讨论这种类型)</span><br></pre></td></tr></table></figure>
+
+<p>复杂类型(对象值)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">object</span><br></pre></td></tr></table></figure>
+
+<h2 id="三种隐式转换"><a href="#三种隐式转换" class="headerlink" title="三种隐式转换"></a>三种隐式转换</h2><p>涉及隐式转换最多的两个运算符 + 和 ==。</p>
+<p>+运算符即可数字相加，也可以字符串相加。所以转换时很麻烦。</p>
+<p>== 不同于===，故也存在隐式转换。</p>
+<p>*- / 这些运算符只会针对number类型，故转换的结果只能是转换成number类型。</p>
+<p>那么转换的规则到底是什么呢？</p>
+<p><strong>隐式转换主要涉及三种转换</strong></p>
+<p>1、将值转为原始值，ToPrimitive()</p>
+<p>2、将值转为数字，ToNumber()</p>
+<p>3、将值转为数字，ToString()</p>
+      
+      <a class="article-more-link" href="/2020/05/17/JS%E7%9A%84%E9%9A%90%E5%BC%8F%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -124,6 +145,8 @@
     <footer class="article-footer">
       
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li></ul>
+
 
     </footer>
 
