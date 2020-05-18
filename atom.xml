@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-17T09:50:27.560Z</updated>
+  <updated>2020-05-18T12:47:01.072Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>typeof + instanceof实现</title>
+    <link href="http://yoursite.com/2020/05/18/typeof-instanceof%E5%AE%9E%E7%8E%B0/"/>
+    <id>http://yoursite.com/2020/05/18/typeof-instanceof%E5%AE%9E%E7%8E%B0/</id>
+    <published>2020-05-18T12:21:11.000Z</published>
+    <updated>2020-05-18T12:47:01.072Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;typeof和instanceof常用来判断一个变量是什么类型的。本篇会说明两者的区别并手写一个instanceof&lt;/p&gt;
+&lt;h2 id=&quot;typeof&quot;&gt;&lt;a href=&quot;#typeof&quot; class=&quot;headerlink&quot; title=&quot;typeof&quot;&gt;&lt;/a&gt;typeof&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;对于typeof来说，只返回以下几个结果：&lt;code&gt;number&lt;/code&gt;、&lt;code&gt;boolean&lt;/code&gt;、&lt;code&gt;string&lt;/code&gt;、&lt;code&gt;function&lt;/code&gt;、&lt;code&gt;object&lt;/code&gt;、&lt;code&gt;undefined&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;注意&lt;code&gt;function&lt;/code&gt;这种引用类型是会返回&lt;code&gt;function&lt;/code&gt;的，并不会返回&lt;code&gt;Object&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;对于其他的引用类型参数，时终返回&lt;code&gt;object&lt;/code&gt;。&lt;strong&gt;这一点导致无法判断准确的类型&lt;/strong&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight javascript&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; arr = [&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;,&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;,&lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; arr &lt;span class=&quot;comment&quot;&gt;// &quot;object&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; date = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;built_in&quot;&gt;Date&lt;/span&gt;()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; date &lt;span class=&quot;comment&quot;&gt;// &quot;object&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="JavaScript" scheme="http://yoursite.com/tags/JavaScript/"/>
+    
+  </entry>
   
   <entry>
     <title>JS的隐式类型转换</title>
