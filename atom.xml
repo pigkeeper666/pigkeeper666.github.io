@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-18T12:47:01.072Z</updated>
+  <updated>2020-05-19T15:27:19.535Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,36 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>RESTful</title>
+    <link href="http://yoursite.com/2020/05/19/RESTful/"/>
+    <id>http://yoursite.com/2020/05/19/RESTful/</id>
+    <published>2020-05-19T15:11:28.000Z</published>
+    <updated>2020-05-19T15:27:19.535Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt; 参考文章：&lt;a href=&quot;https://zhuanlan.zhihu.com/p/30396391&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://zhuanlan.zhihu.com/p/30396391&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.zhihu.com/question/28557115&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.zhihu.com/question/28557115&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;定义&quot;&gt;&lt;a href=&quot;#定义&quot; class=&quot;headerlink&quot; title=&quot;定义&quot;&gt;&lt;/a&gt;定义&lt;/h2&gt;&lt;p&gt;REST :REpresentational State Transfer 直接翻译：表现层状态转移&lt;br&gt;首先，之所以晦涩是因为前面主语被去掉了，全称是 Resource Representational State Transfer通俗来讲就是：资源在网络中以某种表现形式进行状态转移。分解开来：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Resource：资源，即数据（前面说过网络的核心）。比如 newsfeed，friends等&lt;/li&gt;
+&lt;li&gt;Representational：某种表现形式，比如用JSON，XML，JPEG等；&lt;/li&gt;
+&lt;li&gt;State Transfer：状态变化。通过HTTP动词实现。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;一句很精辟的概括是：&lt;strong&gt;URL定位资源，用HTTP动词（GET,POST,DELETE,DETC）描述操作。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;RESTful只是一种“规范”，关键是要如何设计好RESTful API&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="RESTful" scheme="http://yoursite.com/tags/RESTful/"/>
+    
+  </entry>
   
   <entry>
     <title>typeof + instanceof实现</title>

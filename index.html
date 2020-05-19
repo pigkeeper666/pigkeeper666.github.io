@@ -76,6 +76,87 @@
     
     
     
+    <article id="post-RESTful" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/19/RESTful/"
+    >RESTful</a> 
+</h2>
+ 
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/19/RESTful/" class="article-date">
+  <time datetime="2020-05-19T15:11:28.000Z" itemprop="datePublished">2020-05-19</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <blockquote>
+<p> 参考文章：<a href="https://zhuanlan.zhihu.com/p/30396391" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/30396391</a></p>
+<p><a href="https://www.zhihu.com/question/28557115" target="_blank" rel="noopener">https://www.zhihu.com/question/28557115</a></p>
+</blockquote>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>REST :REpresentational State Transfer 直接翻译：表现层状态转移<br>首先，之所以晦涩是因为前面主语被去掉了，全称是 Resource Representational State Transfer通俗来讲就是：资源在网络中以某种表现形式进行状态转移。分解开来：</p>
+<ul>
+<li>Resource：资源，即数据（前面说过网络的核心）。比如 newsfeed，friends等</li>
+<li>Representational：某种表现形式，比如用JSON，XML，JPEG等；</li>
+<li>State Transfer：状态变化。通过HTTP动词实现。</li>
+</ul>
+<p>一句很精辟的概括是：<strong>URL定位资源，用HTTP动词（GET,POST,DELETE,DETC）描述操作。</strong></p>
+<p>RESTful只是一种“规范”，关键是要如何设计好RESTful API</p>
+      
+      <a class="article-more-link" href="/2020/05/19/RESTful/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RESTful/" rel="tag">RESTful</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+  
+  
+
+</article>
+    
     <article id="post-typeof-instanceof实现" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -790,84 +871,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%82%E6%AD%A5/" rel="tag">异步</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-瀑布流效果" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/09/%E7%80%91%E5%B8%83%E6%B5%81%E6%95%88%E6%9E%9C/"
-    >纯JS瀑布流效果与动态加载</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/05/09/%E7%80%91%E5%B8%83%E6%B5%81%E6%95%88%E6%9E%9C/" class="article-date">
-  <time datetime="2020-05-09T01:06:04.000Z" itemprop="datePublished">2020-05-09</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-      
-      <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>瀑布流效果的特征是，里面的图片<strong>等宽不等高</strong>，并按列向下排列。同时，也可以拥有<strong>动态加载</strong>的功能。</p>
-<p>可以参考<a href="https://www.mogu.com/" target="_blank" rel="noopener">蘑菇街</a>首页的效果</p>
-<p>在社区中也有许多的瀑布流库可以使用，本文主要采用<strong>纯JS</strong>实现。</p>
-<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>主要是通过<strong>绝对布局</strong>的方法对每一个图片盒子进行定位，通过JS计算出每一张图片对应的<strong>left和top属性</strong></p>
-<p>计算出每一个图片盒子的定位后，通过监听<strong>滚轮事件</strong>，<strong>判断</strong>是否要进行动态加载新的图片</p>
-<h1 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h1><ul>
-<li><p><strong>首先搭建基本的html结构</strong></p>
-<p>以下就是一个图片盒子的基本单元，我们复制40次这个单元以充满首屏。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./images/0.jpg"</span> <span class="attr">alt</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-      
-      <a class="article-more-link" href="/2020/05/09/%E7%80%91%E5%B8%83%E6%B5%81%E6%95%88%E6%9E%9C/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%80%91%E5%B8%83%E6%B5%81-JS/" rel="tag">瀑布流 JS</a></li></ul>
 
 
     </footer>
