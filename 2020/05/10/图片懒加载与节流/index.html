@@ -107,7 +107,7 @@
       <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
 <p>下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。</p>
 <p>然而继续往下拉动后，这张图片会进行加载</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/10/MDTCPC1OMCGBM_WHPX.png" alt="MDTCPC1OMCGBM_WHPX.png"></p>
+<p><img src="https://wx1.sbimg.cn/2020/05/19/-2020-05-19-233124.png" alt="-2020-05-19-233124.png"></p>
 <a id="more"></a>
 
 <h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>其实主要的思想与我之前的文章<a href="https://www.pigkeeper.xyz/2020/05/09/瀑布流效果/" target="_blank" rel="noopener">纯JS瀑布流效果与动态加载</a>里的动态加载非常的相似，都是计算一个滚动的阈值，达到这个阈值后便进行图片的加载。</p>
@@ -125,7 +125,7 @@
 <p>至此，我们很容易的想到，如果要实现图片的懒加载，我们只需要监听滚动事件，当触发某个条件时，我们就把img标签的src属性值替换为data-src的值，这样就能加载图片了。</p>
 <p>那么，这个条件是什么呢？</p>
 <p>同样用一张图来说明：</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/10/1.png" alt="1.png"></p>
+<p><a href="https://sbimg.cn/image/pgKPd" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/19/-2020-05-19-233144.png" alt="-2020-05-19-233144.png"></a></p>
 <p>其中offsetTop、halfHeight、clientHeight都不会变，只有scrollTop会变</p>
 <p>故当<strong>offsetTop + halfHeight &lt; scrollTop + clientHeight</strong>时，加载图片。</p>
 <p><strong>以下是完整代码</strong></p>

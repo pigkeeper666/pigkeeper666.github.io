@@ -135,7 +135,7 @@
 <li><p>对于<strong>浏览器</strong>来说，同步代码在栈中执行完毕后，会<strong>先去执行微任务队列</strong>，将微任务队列<strong>执行完</strong>后，<strong>再去执行宏任务队列</strong>。当每个宏任务被执行完后，准备执行下一个宏任务时，会检查这个执行完的宏任务是否产生了新的微任务。如果产生了新的微任务，则先去清空微任务队列，再执行下一个宏任务。依次轮循，直到清空整个异步队列。</p>
 </li>
 <li><p>对于<strong>Node</strong>来说。同样会现在栈中执行同步代码，不同的是Node有自己的多个处理不同问题的阶段和对应的队列，整个事件轮询机制是Libuv库实现的。与浏览器最大的不同是Node中有<strong>多个队列，分别执行不同操作</strong>。在每次<strong>队列切换</strong>时，都会区<strong>清空一次微任务队列</strong>。</p>
-<p><img src="https://i.loli.net/2020/05/09/YwG4j9gW7T1fsev.png" alt="批注 2020-05-09 205449.png"></p>
+<p><a href="https://sbimg.cn/image/pgW14" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/19/-2020-05-19-233408.png" alt="-2020-05-19-233408.png"></a></p>
 </li>
 </ul>
 <p><strong>总结</strong>：Node会在队列切换时清空微任务队列，意思是这个队列可能会产生很多微任务，然而也要等这个队列执行完后再去清空这些微任务。然而浏览器会再产生微任务后，就去执行微任务，然后再执行下一个宏任务。</p>

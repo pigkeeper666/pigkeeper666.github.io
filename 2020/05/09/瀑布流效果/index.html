@@ -135,7 +135,7 @@
 </li>
 <li><p>我们先排第一行元素，假设我们算出来当前的<em>colNum</em>为4</p>
 <p>如下图所示，其中gap为两张图片之间的空隙：</p>
-<p><img src="https://i.loli.net/2020/05/09/rgqvVwUpJISHMZO.png" alt="图片1.png"></p>
+<p><a href=""><img src="https://wx2.sbimg.cn/2020/05/19/-2020-05-19-233612.png" alt="-2020-05-19-233612.png"></a></p>
 </li>
 </ul>
 </li>
@@ -160,7 +160,7 @@
 <li><p>当我们需要排列第五张图片时</p>
 <p>第五张图片需要放在哪呢？放在<strong>当前高度最小的所在列的下面</strong></p>
 <p>如下图，在第一行排完后，第三张图片所在列的高度最小，故第五张图片就排在第三列的下面！</p>
-<p><img src="https://i.loli.net/2020/05/09/VNxpL4k5Ss89T1v.png" alt="图片2.png"></p>
+<p><img src="https://wx1.sbimg.cn/2020/05/19/-2020-05-19-233637.png" alt="-2020-05-19-233637.png"></p>
 <p>故第五张图片的top = 第三张图片的高度 + 间隙； left = 第三张图片的left值</p>
 <p>排完后，我们要更新<em>colHeight</em>对应列的高度，也就是把原先第三列的高度加上第五张图片的高度和gap。</p>
 <p>第五张、第六张……都可以这么做。</p>
@@ -183,7 +183,7 @@
 <p>原理如下图，绿色图片盒子是当前boxs数组中的最后一个元素，当用户滚动滚动条，绿色元素显示出来，我们就需要加载新的图片了。</p>
 <p>其中offsetTop、clientHeight是不会变化的，只有scrollTop会随着滚动条的滚动而增加。故临界条件是</p>
 <p><strong>offsetTop &lt;  ScrollTop + clientHeight</strong> 时，就要加载新的图片</p>
-<p><img src="https://i.loli.net/2020/05/09/Db9REgoVziN7tu8.png" alt="图片3.png"></p>
+<p><img src="https://wx2.sbimg.cn/2020/05/19/-2020-05-19-233851.png" alt="-2020-05-19-233851.png"></p>
 </li>
 </ul>
 <p>​    这里使用一个数组来模拟新的图片</p>
