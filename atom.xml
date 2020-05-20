@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-20T15:51:00.672Z</updated>
+  <updated>2020-05-20T15:52:48.830Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,18 +21,16 @@
     <link href="http://yoursite.com/2020/05/20/%E5%93%81%E5%AD%97%E5%B8%83%E5%B1%80%E4%B8%8E%E5%9C%A3%E6%9D%AF%E5%B8%83%E5%B1%80/"/>
     <id>http://yoursite.com/2020/05/20/%E5%93%81%E5%AD%97%E5%B8%83%E5%B1%80%E4%B8%8E%E5%9C%A3%E6%9D%AF%E5%B8%83%E5%B1%80/</id>
     <published>2020-05-20T15:30:53.000Z</published>
-    <updated>2020-05-20T15:51:00.672Z</updated>
+    <updated>2020-05-20T15:52:48.830Z</updated>
     
     <summary type="html">
     
-      
-      
-        
-        
-          &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;本文将通过css flex来进行常见的布局（品字型布局与圣杯布局）&lt;/p&gt;
-&lt;h2 id=&quot;品字布局&quot;&gt;&lt;a href=&quot;#品字布局&quot;
-        
-      
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;本文将通过css flex来进行常见的布局（品字型布局与圣杯布局）&lt;/p&gt;
+&lt;h2 id=&quot;品字布局&quot;&gt;&lt;a href=&quot;#品字布局&quot; class=&quot;headerlink&quot; title=&quot;品字布局&quot;&gt;&lt;/a&gt;品字布局&lt;/h2&gt;&lt;p&gt;效果如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://wx2.sbimg.cn/2020/05/20/-2020-05-20-233311.png&quot; alt=&quot;-2020-05-20-233311.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;红色部分的是header，高度为定高（80px），模拟的是顶部导航条&lt;/p&gt;
+&lt;p&gt;绿色部分的是left，宽度可以定死也可以自适应，模拟的是左侧导航条。&lt;/p&gt;
+&lt;p&gt;黄色部分的是right，宽度可以定死也可以自适应，模拟的是主要内容区域。&lt;/p&gt;
     
     </summary>
     
