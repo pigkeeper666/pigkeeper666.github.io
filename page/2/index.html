@@ -76,6 +76,98 @@
     
     
     
+    <article id="post-如何求解async-await-promise-setTimeout的顺序？" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/09/%E5%A6%82%E4%BD%95%E6%B1%82%E8%A7%A3async-await-promise-setTimeout%E7%9A%84%E9%A1%BA%E5%BA%8F%EF%BC%9F/"
+    >如何求解async await promise setTimeout的顺序？</a> 
+</h2>
+ 
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/09/%E5%A6%82%E4%BD%95%E6%B1%82%E8%A7%A3async-await-promise-setTimeout%E7%9A%84%E9%A1%BA%E5%BA%8F%EF%BC%9F/" class="article-date">
+  <time datetime="2020-05-09T12:30:00.000Z" itemprop="datePublished">2020-05-09</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前端笔试题中常常有一种题，给定一定代码，让笔试者写这段代码的输出。一般这段代码，尝尝糅合了各种异步操作，比如async、await、promise、setTimeout，常常令人混淆。与此同时，由于node环境与浏览器环境执行这些异步操作的策略不同，也会有一些差异。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><strong>重要概念：</strong></p>
+<ul>
+<li>首先我们要知道Javascript是<strong>单线程</strong>的</li>
+<li>Javascript里的代码可以分为<strong>同步任务</strong>与<strong>异步任务</strong></li>
+<li>同步任务会在<strong>主线程</strong>上执行。是在栈中执行，先进后出。</li>
+<li>而异步任务会被放置到主线程之外的<strong>任务队列</strong>，先进先出</li>
+<li>当主线程上的同步任务执行完成后，会读取任务队列的异步任务</li>
+</ul>
+<p><strong>宏任务与微任务</strong></p>
+<p>上面讲到异步任务会在任务队列中执行。而执行异步代码的时候会分为两个队列，宏任务队列与微任务队列。</p>
+<p>宏任务包括：</p>
+<ul>
+<li>一开始执行的整段的代码（script代码）</li>
+<li>setTimeout、setInterval、postMessage等</li>
+</ul>
+<p>微任务包括：</p>
+<ul>
+<li><p>Promise.then后面的代码</p>
+</li>
+<li><p>await后面的代码（指的是 await func() 下一行开始的代码）</p>
+</li>
+<li><p>process.nextTick（node中的）</p>
+      
+      <a class="article-more-link" href="/2020/05/09/%E5%A6%82%E4%BD%95%E6%B1%82%E8%A7%A3async-await-promise-setTimeout%E7%9A%84%E9%A1%BA%E5%BA%8F%EF%BC%9F/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%82%E6%AD%A5/" rel="tag">异步</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+  
+  
+
+</article>
+    
     <article id="post-瀑布流效果" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 

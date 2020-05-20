@@ -1,6 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>css/js/媒体资源会阻塞HTML的解析吗?</title>
+    <url>/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有复习到浏览器对CSS、JS、媒体资源文件（图片、音频等）的加载和解析。</p>
+<p>当我们解析HTML的时候，遇到上述资源，会不会阻塞HTML解析呢？</p>
+<h2 id="浏览器渲染流程"><a href="#浏览器渲染流程" class="headerlink" title="浏览器渲染流程"></a>浏览器渲染流程</h2><p><a href="https://sbimg.cn/image/pXVko" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/15/3987507-1bfba2f13098339f.jpg" alt="3987507-1bfba2f13098339f.jpg"></a></p>
+<p>1、<strong>解析HTML生成DOM树</strong>：渲染引擎首先解析HTML文档，生成DOM树</p>
+<p>2、<strong>生成CSSOM树</strong>：无论是内联式、外联是还是嵌入式引入的css样式都会被解析生成CSSOM树。注意，<strong>该步操作与步骤一是并行的</strong></p>
+<p>3、<strong>构建Render树</strong>：根据DOM树与CSSOM树生成另一颗用于渲染的Render树。</p>
+<p>4、<strong>布局Render树</strong>：然后对渲染树的每个节点进行布局处理，确定再屏幕上显示的位置。当然这一步还包括一些合成层的操作（新建图层处理一些特殊样势，比如说透明度、transform这种）。</p>
+<p>5、<strong>绘制Render树</strong>：绘制出一个个节点</p>
+<a id="more"></a>
+
+<h2 id="CSS"><a href="#CSS" class="headerlink" title="CSS"></a>CSS</h2><p><strong>当解析HTML时，遇到了link标签，加载对应的css时不会阻塞HTML的解析</strong>。</p>
+<p>因为上面有提到，cssom和dom树的构建是并行的，所以不会阻塞解析。</p>
+<p><strong>css加载不会阻塞HTML解析，但是会阻塞渲染树生成与页面的渲染</strong></p>
+<p>因为上面有提到，渲染树是要结合dom和ccsom才能生成的。ccsom还未完成的话，就会阻塞渲染。</p>
+<h2 id="JS"><a href="#JS" class="headerlink" title="JS"></a>JS</h2><p>区分加载与执行。</p>
+<p>加载是获取网络数据“下载下来”，执行是执行JS代码</p>
+<h3 id="执行JS代码阻塞HTML的解析"><a href="#执行JS代码阻塞HTML的解析" class="headerlink" title="执行JS代码阻塞HTML的解析"></a>执行JS代码阻塞HTML的解析</h3><p>首先我们要知道，<strong>执行JS代码与解析HTML是互斥的，也就是会阻塞HTML的解析</strong>。</p>
+<p>假如有如下的代码：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"div1"</span>&gt;</span>元素1<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">var</span> newEle = <span class="built_in">document</span>.createElement(<span class="string">"div"</span>);</span></span><br><span class="line"><span class="actionscript">        newEle.id = <span class="string">"newEle"</span>;</span></span><br><span class="line"><span class="actionscript">        newEle.innerText = <span class="string">"新元素"</span>;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">document</span>.body.appendChild(newEle);</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"div2"</span>&gt;</span>元素2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"div3"</span>&gt;</span>元素3<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后的顺序是<strong>元素1、新元素、元素2、元素3。</strong></p>
+<p>加入JS执行时不阻塞HTML解析，也就是script里的代码执行，同时html叶继续解析下一个div…</p>
+<p>那当我们执行script里的代码时，是append到谁的后面去呢？是元素2还是元素3？都有可能</p>
+<p><strong>因此这两个操作必须是互斥的，不然会出现这种情况。</strong></p>
+<h3 id="defer与async"><a href="#defer与async" class="headerlink" title="defer与async"></a>defer与async</h3><p>当我们为script标签添加defer/async属性时，会使script<strong>异步加载</strong>，意思是不阻塞HTML的解析，异步的去下载JS文件。</p>
+<p>那两个属性的区别是什么呢？</p>
+<p><strong>答：执行的时机</strong></p>
+<p><strong>下载完后，defer会等到HTML解析完后再执行，而async一下载完后就立即执行</strong></p>
+<p><a href="https://sbimg.cn/image/pXTEw" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/15/3987507-a4b5763f7926f299.png" alt="3987507-a4b5763f7926f299.png"></a></p>
+<p>绿色表示HTML解析过程，蓝色表示 script 脚本文件的网络读取过程（加载或下载），红色表示执行过程。</p>
+<h2 id="媒体资源文件"><a href="#媒体资源文件" class="headerlink" title="媒体资源文件"></a>媒体资源文件</h2><p>媒体资源文件包括图片、音频视频等，遇到这些资源时，<strong>不会阻塞HTML的解析</strong></p>
+<p>HTML的解析不依赖于这此媒体资源，这些媒体资源也不会影响当前Dom树的结构，所以，这些媒体资源的加载不会且也没有必要阻塞HTML的解析！</p>
+<p><strong>媒体资源可以并行加载</strong>，因为他不阻塞HTML的解析，我遇到一个媒体资源就开网络线程去下载，因而可以并行。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>那介绍上面这些理论有什么用的？</p>
+<p>1、可以想一下，一般你的script标签是放在body上面还是下面？一般link标签放在body上面还是下面？</p>
+<p>link标签可以放上面，因为css加载并不会阻塞HTML解析。</p>
+<p>而script就比较讲究，如果script放上面，那么就会阻塞HTML解析，白屏的时间可能较长，同时，如果此时操作DOM，会出现问题，<strong>因为你拿的DOM元素都还没被解析呢！</strong></p>
+<p>所以一般放下面。</p>
+<p>2、如果你不知道该放哪，可以了解一下<code>window.ready</code>和<code>window.onload</code></p>
+<p><strong>window.ready()</strong> 表示文档结构已经加载完成（<strong>不包含图片等非文字媒体文件</strong>）；</p>
+<p><strong>window.onload()</strong> 在页面完全载入后(<strong>包括图片、css文件等等</strong>)执行脚本代码。</p>
+<p>也就是说把代码放在上面两个回调中，是必定能够操作dom的，但是图片、css文件是否已经加载好了是有区别。</p>
+<h2 id="我遇到的问题"><a href="#我遇到的问题" class="headerlink" title="我遇到的问题"></a>我遇到的问题</h2><p>这里要实现一个需求，也就是利用canvas画出一张图像。</p>
+<p>有一个方法叫<code>context.drawImage(img,dx,dy)</code>，可以在canvas是上画出img图像</p>
+<p>img是Image对象，dx，dy是画的位置。</p>
+<p>代码如下（这段代码放置在了body的下面）：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="keyword">let</span> canvas = getElementById(<span class="string">'mycanvas'</span>)</span><br><span class="line">    <span class="keyword">let</span> context = canvas.getContext(<span class="string">'2d'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// new 一个 Image对象</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image()</span><br><span class="line">    <span class="comment">// 为img添加src(本地图片)</span></span><br><span class="line">    img.src = <span class="string">'./pig.jpg'</span></span><br><span class="line">    context.drawImage(img,<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>乍一看，好像没有问题。</p>
+<p>然而，这张图片就是画不出来！</p>
+<p>原因正是：<strong>图片作为一个资源请求，在js中加载时，自然也会有一个图片加载的时间。</strong></p>
+<p><strong>但是因为没有限制，极大的情况是当图片还没有加载完毕就调用了drawImage，此方法他是不起作用的。</strong></p>
+<p><strong>解决方法1</strong>：上面有说<code>window.onload</code>可以保证里面代码执行的时候，图片已经加载，故只要在里面调用<code>context.drawImage(img,dx,dy)</code>。这种做法解决的核心是onload，将图片和drawImage分开加载，img先加载，确保加载完毕以后再使用绘图</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;img src=<span class="string">"./pig.jpg"</span>&gt;</span><br><span class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">　　context.drawImage()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决方法2</strong>：使用img.onload，等待图片资源加载完了再调用drawImage。<strong>使用img的加载事件，监听图片加载</strong>成功后，再执行canvas的绘图效果.并且这种方法靠谱一些。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="keyword">let</span> canvas = getElementById(<span class="string">'mycanvas'</span>)</span><br><span class="line">    <span class="keyword">let</span> context = canvas.getContext(<span class="string">'2d'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// new 一个 Image对象</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image()</span><br><span class="line">    <span class="comment">// 为img添加src(本地图片)</span></span><br><span class="line">    img.src = <span class="string">'./pig.jpg'</span></span><br><span class="line">	<span class="comment">// 等待图片加载完成</span></span><br><span class="line">	img.onload=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        context.drawImage(img,<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>浏览器</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Vue.nextTick</title>
     <url>/2020/05/12/Vue-nextTick/</url>
     <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
@@ -72,6 +138,127 @@
       </tags>
   </entry>
   <entry>
+    <title>品字布局与圣杯布局</title>
+    <url>/2020/05/20/%E5%93%81%E5%AD%97%E5%B8%83%E5%B1%80%E4%B8%8E%E5%9C%A3%E6%9D%AF%E5%B8%83%E5%B1%80/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文将通过css flex来进行常见的布局（品字型布局与圣杯布局）</p>
+<h2 id="品字布局"><a href="#品字布局" class="headerlink" title="品字布局"></a>品字布局</h2><p>效果如下：</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/20/-2020-05-20-233311.png" alt="-2020-05-20-233311.png"></p>
+<p>红色部分的是header，高度为定高（80px），模拟的是顶部导航条</p>
+<p>绿色部分的是left，宽度可以定死也可以自适应，模拟的是左侧导航条。</p>
+<p>黄色部分的是right，宽度可以定死也可以自适应，模拟的是主要内容区域。</p>
+<p><strong>首先定义HTML结构</strong></p>
+<p>把整个页面分为上下两个结构，分别为header和down</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"header"</span>&gt;</span>header<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"down"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"left"</span>&gt;</span>left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"right"</span>&gt;</span>right<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>定义CSS</strong></p>
+<p>首先是基础的设置，清除所有的margin和padding</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">* &#123;</span><br><span class="line">    <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">padding</span>: <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于最外层的容器是body，我门需要让他占满整一个页面，于是用vh和vw进行设置。</p>
+<p>height：100vh表示高度占可视窗口的100%，vw同理</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们已经将整个页面结构分为上（header）下（down）两部分。我们为其设置flex布局，并将flex的方向改为colunm，这样就能形成上下结构。</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">    <span class="attribute">flex-direction</span>: column;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于header需要定高，于是为header设置高度</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.header</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: red;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们关注下面的结构：我们需要让left和right在一行里显示，于是我们再次用flex</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.down</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，left和right已经并为一行。</p>
+<p>但是，下半部分并没有撑满剩余的高度，于是我们使用<strong>flex:1</strong>属性让其自适应。</p>
+<p>flex:1是flex-growth:1的缩写。</p>
+<blockquote>
+<p>flex-growth规定项目将相对于其他灵活的项目进行扩展的量。默认值是 0</p>
+</blockquote>
+<p>我们可以这样理解，在上下结构中，除了上下两个div所占的高度外，剩下的空白区域的总高度是1</p>
+<p>那么，我们将这个1全部让给下半部分，于是：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.down</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时已经可以看到，撑满了整个高度。</p>
+<p>但此时，left和right并没有占满整行，我们利用flex的思想：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.left</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: green;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.right</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: yellow;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样，left和right就能平分宽度了</p>
+<blockquote>
+<p>当然，你也可以给left或者right的其中一个设定宽度，剩下的设置为flex:1</p>
+<p>也可以按比例来，比如一个flex设为2，一个设为1，那么他们的比例就是2：1</p>
+</blockquote>
+<p>完成！！</p>
+<h2 id="圣杯布局"><a href="#圣杯布局" class="headerlink" title="圣杯布局"></a>圣杯布局</h2><p>效果如下：</p>
+<p><a href="https://sbimg.cn/image/pusPJ" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/20/-2020-05-20-233249.png" alt="-2020-05-20-233249.png"></a></p>
+<p>圣杯布局是品字布局的加强版：</p>
+<p>其中，header和footer定高</p>
+<p>left main right 高度自适应</p>
+<p>left 和 right 定宽</p>
+<p>main宽度自适应。</p>
+<p>由于原理相同，这边只放代码，可以参照！</p>
+<p><strong>HTML结构</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 圣杯布局 --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- header与footer定高 left main right高度自适应 --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- left和right定宽 main宽度自适应 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"header"</span>&gt;</span>header<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"middle"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"left"</span>&gt;</span>left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"main"</span>&gt;</span>main<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"right"</span>&gt;</span>right<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"footer"</span>&gt;</span>footer<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>CSS样式</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">    * &#123;</span><br><span class="line">        <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">padding</span>: <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-tag">body</span> &#123;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">        <span class="attribute">display</span>: flex;</span><br><span class="line">        <span class="attribute">flex-direction</span>: column;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.header</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: red;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.middle</span> &#123;</span><br><span class="line">        <span class="attribute">display</span>: flex;</span><br><span class="line">        <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.left</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: yellow;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">200px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.main</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: purple;</span><br><span class="line">        <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.right</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: green;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">200px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.footer</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: blue;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>CSS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>别再用对象代替Map了</title>
+    <url>/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>其实没有标题那么夸张，大家根据喜欢与熟练程度自己选用就好。</p>
+<p>只是今天博主用对象代替Map被坑了，所以决心再也不偷懒了……</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>其实JS里的对象和Map都可以用来存键值对。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="string">'name'</span>:<span class="string">'养猪大师'</span>,</span><br><span class="line">     num:<span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="string">'name'</span>,<span class="string">'养猪大师'</span>)</span><br><span class="line">map.set(<span class="string">'num'</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>然而有区别，虽然存的都是key-value，但是在对象中，key的类型会被转化为<strong>字符串</strong></p>
+<p>但是map的key值不会被转换哦</p>
+</blockquote>
+<p>同样，我们也可以通过方法，判断容器里是否有某个key</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[name])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;  <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'name'</span>) <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'num'</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>但是细心的你有没有发现，我少写了一个</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你猜猜会输出啥？</p>
+<a id="more"></a>
+
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
+<p>上面这段代码会返回false。</p>
+<p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
+<p>你也许会恍然大悟，然后觉得这有什么，下次注意就好。</p>
+<p>但是这种东西很玄学的，可能你就真没注意到呢？</p>
+<p>如果一定要用obj来写，那我推荐用这样的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num]!==<span class="literal">undefined</span>)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="来做做这道题"><a href="#来做做这道题" class="headerlink" title="来做做这道题"></a>来做做这道题</h2><blockquote>
+<p>来源：leetcode:面试题48</p>
+<p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
+<p>示例 1:</p>
+<p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。<br>示例 2:</p>
+<p>输入: “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。<br>示例 3:</p>
+<p>输入: “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。<br>     请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。</p>
+<p>提示：</p>
+<p>s.length &lt;= 40000</p>
+</blockquote>
+<p>解答可以自行百度，大致思路是 滑动窗口+hash表优化。</p>
+<p>然而博主v1.0的版本如何都无法通过：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> hash = []</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;</span><br><span class="line">       <span class="keyword">if</span>(hash[s[tail]])&#123;</span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,hash[s[tail]]+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">       hash[s[tail]] = tail</span><br><span class="line">       max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>原因正是，<strong>返回的value的值是0，破坏了我的计划！</strong>，让我整整找了半小时。</p>
+<p>老老实实用Map吧</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;      </span><br><span class="line">       <span class="keyword">if</span>(map.has(s[tail]))&#123;</span><br><span class="line">           <span class="comment">// ！！！注意要max</span></span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,map.get(s[tail])+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">      map.set(s[tail],tail)</span><br><span class="line">      max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Map</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RESTful</title>
     <url>/2020/05/19/RESTful/</url>
     <content><![CDATA[<blockquote>
@@ -103,6 +290,17 @@
 ]]></content>
       <tags>
         <tag>RESTful</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开篇！初心与目标</title>
+    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
+<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
+<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
+]]></content>
+      <tags>
+        <tag>测试</tag>
       </tags>
   </entry>
   <entry>
@@ -202,124 +400,6 @@
       </tags>
   </entry>
   <entry>
-    <title>css/js/媒体资源会阻塞HTML的解析吗?</title>
-    <url>/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有复习到浏览器对CSS、JS、媒体资源文件（图片、音频等）的加载和解析。</p>
-<p>当我们解析HTML的时候，遇到上述资源，会不会阻塞HTML解析呢？</p>
-<h2 id="浏览器渲染流程"><a href="#浏览器渲染流程" class="headerlink" title="浏览器渲染流程"></a>浏览器渲染流程</h2><p><a href="https://sbimg.cn/image/pXVko" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/15/3987507-1bfba2f13098339f.jpg" alt="3987507-1bfba2f13098339f.jpg"></a></p>
-<p>1、<strong>解析HTML生成DOM树</strong>：渲染引擎首先解析HTML文档，生成DOM树</p>
-<p>2、<strong>生成CSSOM树</strong>：无论是内联式、外联是还是嵌入式引入的css样式都会被解析生成CSSOM树。注意，<strong>该步操作与步骤一是并行的</strong></p>
-<p>3、<strong>构建Render树</strong>：根据DOM树与CSSOM树生成另一颗用于渲染的Render树。</p>
-<p>4、<strong>布局Render树</strong>：然后对渲染树的每个节点进行布局处理，确定再屏幕上显示的位置。当然这一步还包括一些合成层的操作（新建图层处理一些特殊样势，比如说透明度、transform这种）。</p>
-<p>5、<strong>绘制Render树</strong>：绘制出一个个节点</p>
-<a id="more"></a>
-
-<h2 id="CSS"><a href="#CSS" class="headerlink" title="CSS"></a>CSS</h2><p><strong>当解析HTML时，遇到了link标签，加载对应的css时不会阻塞HTML的解析</strong>。</p>
-<p>因为上面有提到，cssom和dom树的构建是并行的，所以不会阻塞解析。</p>
-<p><strong>css加载不会阻塞HTML解析，但是会阻塞渲染树生成与页面的渲染</strong></p>
-<p>因为上面有提到，渲染树是要结合dom和ccsom才能生成的。ccsom还未完成的话，就会阻塞渲染。</p>
-<h2 id="JS"><a href="#JS" class="headerlink" title="JS"></a>JS</h2><p>区分加载与执行。</p>
-<p>加载是获取网络数据“下载下来”，执行是执行JS代码</p>
-<h3 id="执行JS代码阻塞HTML的解析"><a href="#执行JS代码阻塞HTML的解析" class="headerlink" title="执行JS代码阻塞HTML的解析"></a>执行JS代码阻塞HTML的解析</h3><p>首先我们要知道，<strong>执行JS代码与解析HTML是互斥的，也就是会阻塞HTML的解析</strong>。</p>
-<p>假如有如下的代码：</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"div1"</span>&gt;</span>元素1<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">var</span> newEle = <span class="built_in">document</span>.createElement(<span class="string">"div"</span>);</span></span><br><span class="line"><span class="actionscript">        newEle.id = <span class="string">"newEle"</span>;</span></span><br><span class="line"><span class="actionscript">        newEle.innerText = <span class="string">"新元素"</span>;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">document</span>.body.appendChild(newEle);</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"div2"</span>&gt;</span>元素2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"div3"</span>&gt;</span>元素3<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>最后的顺序是<strong>元素1、新元素、元素2、元素3。</strong></p>
-<p>加入JS执行时不阻塞HTML解析，也就是script里的代码执行，同时html叶继续解析下一个div…</p>
-<p>那当我们执行script里的代码时，是append到谁的后面去呢？是元素2还是元素3？都有可能</p>
-<p><strong>因此这两个操作必须是互斥的，不然会出现这种情况。</strong></p>
-<h3 id="defer与async"><a href="#defer与async" class="headerlink" title="defer与async"></a>defer与async</h3><p>当我们为script标签添加defer/async属性时，会使script<strong>异步加载</strong>，意思是不阻塞HTML的解析，异步的去下载JS文件。</p>
-<p>那两个属性的区别是什么呢？</p>
-<p><strong>答：执行的时机</strong></p>
-<p><strong>下载完后，defer会等到HTML解析完后再执行，而async一下载完后就立即执行</strong></p>
-<p><a href="https://sbimg.cn/image/pXTEw" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/15/3987507-a4b5763f7926f299.png" alt="3987507-a4b5763f7926f299.png"></a></p>
-<p>绿色表示HTML解析过程，蓝色表示 script 脚本文件的网络读取过程（加载或下载），红色表示执行过程。</p>
-<h2 id="媒体资源文件"><a href="#媒体资源文件" class="headerlink" title="媒体资源文件"></a>媒体资源文件</h2><p>媒体资源文件包括图片、音频视频等，遇到这些资源时，<strong>不会阻塞HTML的解析</strong></p>
-<p>HTML的解析不依赖于这此媒体资源，这些媒体资源也不会影响当前Dom树的结构，所以，这些媒体资源的加载不会且也没有必要阻塞HTML的解析！</p>
-<p><strong>媒体资源可以并行加载</strong>，因为他不阻塞HTML的解析，我遇到一个媒体资源就开网络线程去下载，因而可以并行。</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>那介绍上面这些理论有什么用的？</p>
-<p>1、可以想一下，一般你的script标签是放在body上面还是下面？一般link标签放在body上面还是下面？</p>
-<p>link标签可以放上面，因为css加载并不会阻塞HTML解析。</p>
-<p>而script就比较讲究，如果script放上面，那么就会阻塞HTML解析，白屏的时间可能较长，同时，如果此时操作DOM，会出现问题，<strong>因为你拿的DOM元素都还没被解析呢！</strong></p>
-<p>所以一般放下面。</p>
-<p>2、如果你不知道该放哪，可以了解一下<code>window.ready</code>和<code>window.onload</code></p>
-<p><strong>window.ready()</strong> 表示文档结构已经加载完成（<strong>不包含图片等非文字媒体文件</strong>）；</p>
-<p><strong>window.onload()</strong> 在页面完全载入后(<strong>包括图片、css文件等等</strong>)执行脚本代码。</p>
-<p>也就是说把代码放在上面两个回调中，是必定能够操作dom的，但是图片、css文件是否已经加载好了是有区别。</p>
-<h2 id="我遇到的问题"><a href="#我遇到的问题" class="headerlink" title="我遇到的问题"></a>我遇到的问题</h2><p>这里要实现一个需求，也就是利用canvas画出一张图像。</p>
-<p>有一个方法叫<code>context.drawImage(img,dx,dy)</code>，可以在canvas是上画出img图像</p>
-<p>img是Image对象，dx，dy是画的位置。</p>
-<p>代码如下（这段代码放置在了body的下面）：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="keyword">let</span> canvas = getElementById(<span class="string">'mycanvas'</span>)</span><br><span class="line">    <span class="keyword">let</span> context = canvas.getContext(<span class="string">'2d'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// new 一个 Image对象</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image()</span><br><span class="line">    <span class="comment">// 为img添加src(本地图片)</span></span><br><span class="line">    img.src = <span class="string">'./pig.jpg'</span></span><br><span class="line">    context.drawImage(img,<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>乍一看，好像没有问题。</p>
-<p>然而，这张图片就是画不出来！</p>
-<p>原因正是：<strong>图片作为一个资源请求，在js中加载时，自然也会有一个图片加载的时间。</strong></p>
-<p><strong>但是因为没有限制，极大的情况是当图片还没有加载完毕就调用了drawImage，此方法他是不起作用的。</strong></p>
-<p><strong>解决方法1</strong>：上面有说<code>window.onload</code>可以保证里面代码执行的时候，图片已经加载，故只要在里面调用<code>context.drawImage(img,dx,dy)</code>。这种做法解决的核心是onload，将图片和drawImage分开加载，img先加载，确保加载完毕以后再使用绘图</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;img src=<span class="string">"./pig.jpg"</span>&gt;</span><br><span class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">　　context.drawImage()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>解决方法2</strong>：使用img.onload，等待图片资源加载完了再调用drawImage。<strong>使用img的加载事件，监听图片加载</strong>成功后，再执行canvas的绘图效果.并且这种方法靠谱一些。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="keyword">let</span> canvas = getElementById(<span class="string">'mycanvas'</span>)</span><br><span class="line">    <span class="keyword">let</span> context = canvas.getContext(<span class="string">'2d'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// new 一个 Image对象</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image()</span><br><span class="line">    <span class="comment">// 为img添加src(本地图片)</span></span><br><span class="line">    img.src = <span class="string">'./pig.jpg'</span></span><br><span class="line">	<span class="comment">// 等待图片加载完成</span></span><br><span class="line">	img.onload=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        context.drawImage(img,<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>浏览器</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>别再用对象代替Map了</title>
-    <url>/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>其实没有标题那么夸张，大家根据喜欢与熟练程度自己选用就好。</p>
-<p>只是今天博主用对象代替Map被坑了，所以决心再也不偷懒了……</p>
-<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>其实JS里的对象和Map都可以用来存键值对。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="string">'name'</span>:<span class="string">'养猪大师'</span>,</span><br><span class="line">     num:<span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="string">'name'</span>,<span class="string">'养猪大师'</span>)</span><br><span class="line">map.set(<span class="string">'num'</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>然而有区别，虽然存的都是key-value，但是在对象中，key的类型会被转化为<strong>字符串</strong></p>
-<p>但是map的key值不会被转换哦</p>
-</blockquote>
-<p>同样，我们也可以通过方法，判断容器里是否有某个key</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[name])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;  <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'name'</span>) <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'num'</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<p>但是细心的你有没有发现，我少写了一个</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>你猜猜会输出啥？</p>
-<a id="more"></a>
-
-<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
-<p>上面这段代码会返回false。</p>
-<p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
-<p>你也许会恍然大悟，然后觉得这有什么，下次注意就好。</p>
-<p>但是这种东西很玄学的，可能你就真没注意到呢？</p>
-<p>如果一定要用obj来写，那我推荐用这样的写法：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num]!==<span class="literal">undefined</span>)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="来做做这道题"><a href="#来做做这道题" class="headerlink" title="来做做这道题"></a>来做做这道题</h2><blockquote>
-<p>来源：leetcode:面试题48</p>
-<p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
-<p>示例 1:</p>
-<p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。<br>示例 2:</p>
-<p>输入: “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。<br>示例 3:</p>
-<p>输入: “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。<br>     请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。</p>
-<p>提示：</p>
-<p>s.length &lt;= 40000</p>
-</blockquote>
-<p>解答可以自行百度，大致思路是 滑动窗口+hash表优化。</p>
-<p>然而博主v1.0的版本如何都无法通过：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> hash = []</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;</span><br><span class="line">       <span class="keyword">if</span>(hash[s[tail]])&#123;</span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,hash[s[tail]]+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">       hash[s[tail]] = tail</span><br><span class="line">       max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>原因正是，<strong>返回的value的值是0，破坏了我的计划！</strong>，让我整整找了半小时。</p>
-<p>老老实实用Map吧</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;      </span><br><span class="line">       <span class="keyword">if</span>(map.has(s[tail]))&#123;</span><br><span class="line">           <span class="comment">// ！！！注意要max</span></span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,map.get(s[tail])+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">      map.set(s[tail],tail)</span><br><span class="line">      max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Map</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>如何求解async await promise setTimeout的顺序？</title>
     <url>/2020/05/09/%E5%A6%82%E4%BD%95%E6%B1%82%E8%A7%A3async-await-promise-setTimeout%E7%9A%84%E9%A1%BA%E5%BA%8F%EF%BC%9F/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前端笔试题中常常有一种题，给定一定代码，让笔试者写这段代码的输出。一般这段代码，尝尝糅合了各种异步操作，比如async、await、promise、setTimeout，常常令人混淆。与此同时，由于node环境与浏览器环境执行这些异步操作的策略不同，也会有一些差异。</p>
@@ -403,17 +483,6 @@
       </tags>
   </entry>
   <entry>
-    <title>开篇！初心与目标</title>
-    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
-<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
-<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
-]]></content>
-      <tags>
-        <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>图片懒加载与防抖节流</title>
     <url>/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</url>
     <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
@@ -473,65 +542,6 @@
 ]]></content>
       <tags>
         <tag>图片懒加载 节流 防抖</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>认清Token的职责</title>
-    <url>/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</url>
-    <content><![CDATA[<h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
-<p>一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：</p>
-<p><strong>1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;test1.demo.com:8080 与 http:&#x2F;&#x2F;test2.demo.com:8081 之间共享 cookie</span><br></pre></td></tr></table></figure>
-
-<p>注意：test1.demo.com 是 demo.com的子域名</p>
-<p><strong>2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。</strong></p>
-<p><strong>3、可能会遭到CSRF攻击（cookie劫持）</strong></p>
-<p>针对上面三个问题，我们可以想想如何解决：</p>
-<p>1、用token，可以跨域名。</p>
-<p>2、能不能不把session存在服务端，而存在客户端呢？</p>
-<p>3、不使用cookie了，不就能避免CSRF了嘛？</p>
-<a id="more"></a>
-
-<h2 id="什么是Token"><a href="#什么是Token" class="headerlink" title="什么是Token"></a>什么是Token</h2><p><strong>Token</strong>是服务端生成的一串字符串，以作客户端进行请求的一个<strong>令牌</strong>，当第一次登录后，服务器生成一个Token便将此Token返回给客户端，以后客户端只需带上这个Token前来请求数据即可，无需再次带上用户名和密码。</p>
-<p>优点：</p>
-<p><strong>1、可以跨域名</strong></p>
-<p><strong>2、服务端压力小，不用频繁的操作数据库，只要对token进行签名与“解密”</strong></p>
-<p><strong>3、规避了CSRF攻击。</strong></p>
-<p>以下讨论无状态Token</p>
-<blockquote>
-<p>注意，所谓无状态Token就是服务端不存储Token，而让客户端存储。</p>
-</blockquote>
-<p>你可能想问，如果服务端不存，那怎么验证Token呢？</p>
-<blockquote>
-<p>假设我用这个数据<code>{id:12345}</code>生成一个<code>token</code>,这个<code>token</code>分为三段信息：</p>
-<p>第一段是头部<code>Header</code>，包括的信息有签名使用的算法（HS256等）、令牌的类型等。</p>
-<p>第二部分就是我们的数据<code>Payload</code>通过<code>base64</code>加密。包括发行人、到期时间、发布时间以及自定义字段等数据。</p>
-<p>第三部分是加密的签名。通过<code>Header</code>和<code>Payload</code>以及我们的服务端的私钥生成。签名是对上面两部分数据签名，通过指定的算法生成哈希，以确保数据不会被篡改。</p>
-</blockquote>
-<p>因此，当服务端发回Token时，<strong>服务端再次对第一二部分进行数字签名，与第三部分对比</strong>。由于服务器私钥我们认为他是安全的，别人无法获得，因此当这两个值是一样的，则我们可以认为<strong>用户的登录信息没有被篡改。</strong>因此完成了Token的验证。</p>
-<p>综上，Token的作用是<strong>验证身份</strong>，<strong>安全问题不在它本身的职责范围内</strong></p>
-<h2 id="非常容易搞混的点"><a href="#非常容易搞混的点" class="headerlink" title="非常容易搞混的点"></a>非常容易搞混的点</h2><p>这个点便是<strong>安全问题。</strong></p>
-<p>你可能会想，倘若我发起<strong>中间人攻击</strong>：我截取了服务端返回的Token值，那么我便可以伪造真实的用户做一些坏事。</p>
-<p>没错，的确会这样，然而这不是Token的问题，你想，就算用cookie+session难道不会遇到这种问题嘛？</p>
-<p>那怎么办？</p>
-<p>事实上，这是<strong>HTTPS中的SSL/TLS防止的事情</strong>：通过对计算机中的网络流量进行加密（密钥协商是通过SSL握手协商而得），就算截取到了这个密文也无法进行破解，除非它们能够以某种方式获取服务器的私有SSL密钥的副本（不太可能）。</p>
-<p>同样还有一些别的安全防范手段：</p>
-<p>比如就不想别人知道<code>token</code>里面的数据，那就可以在给这个数据加一下密。或者担心这个<code>token</code>会被别人获取，照成这个用户的损失,那就需要在加别的手段来保证，比如通过验证来访的 ip ，比如设置更短的过期时间，比如你用的<code>HTTPS</code>，或者添加更多的验证等等。通过增加第三方的窃取成本，来降低被窃取的几率！</p>
-<p>这便是风控手段。</p>
-<p>用一个形象的例子来解释：</p>
-<blockquote>
-<p>你可以把<code>token</code>想象为银行的验钞机,验钞机的职责是验证假钞保证收进来的钱都是真钱，至于这个钱是偷的抢的,还是正常交易，那就不是验钞机管的了，那是警察叔叔管的。</p>
-</blockquote>
-<h2 id="扯床单"><a href="#扯床单" class="headerlink" title="扯床单"></a>扯床单</h2><p>什么叫扯床单？就是当你铺床时，左边的床单没平，于是你用力一拉…左边的床单是平了，然而右边又乱了……</p>
-<p><strong>Token规避了CSRF攻击，然而却增加了XSS攻击的风险</strong></p>
-<p>Token一般我们存在哪里？对！客户端。那客户端的哪里？</p>
-<p>存在cookie里吗？那本质上是不是又和cookie+session一样了？会造成token版的“CSRF”攻击吧。</p>
-<p>一般我们存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
-<p>这两个值是不会像cookie一样被自动携带访问某些网站的。</p>
-<p><strong>然而</strong>，这两个值是可以被JavaScript访问的，也就是说，仍然会有XSS攻击的风险！</p>
-]]></content>
-      <tags>
-        <tag>Token</tag>
       </tags>
   </entry>
   <entry>
@@ -917,6 +927,65 @@
 ]]></content>
       <tags>
         <tag>JavaScript</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>认清Token的职责</title>
+    <url>/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/</url>
+    <content><![CDATA[<h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
+<p>一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：</p>
+<p><strong>1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http:&#x2F;&#x2F;test1.demo.com:8080 与 http:&#x2F;&#x2F;test2.demo.com:8081 之间共享 cookie</span><br></pre></td></tr></table></figure>
+
+<p>注意：test1.demo.com 是 demo.com的子域名</p>
+<p><strong>2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。</strong></p>
+<p><strong>3、可能会遭到CSRF攻击（cookie劫持）</strong></p>
+<p>针对上面三个问题，我们可以想想如何解决：</p>
+<p>1、用token，可以跨域名。</p>
+<p>2、能不能不把session存在服务端，而存在客户端呢？</p>
+<p>3、不使用cookie了，不就能避免CSRF了嘛？</p>
+<a id="more"></a>
+
+<h2 id="什么是Token"><a href="#什么是Token" class="headerlink" title="什么是Token"></a>什么是Token</h2><p><strong>Token</strong>是服务端生成的一串字符串，以作客户端进行请求的一个<strong>令牌</strong>，当第一次登录后，服务器生成一个Token便将此Token返回给客户端，以后客户端只需带上这个Token前来请求数据即可，无需再次带上用户名和密码。</p>
+<p>优点：</p>
+<p><strong>1、可以跨域名</strong></p>
+<p><strong>2、服务端压力小，不用频繁的操作数据库，只要对token进行签名与“解密”</strong></p>
+<p><strong>3、规避了CSRF攻击。</strong></p>
+<p>以下讨论无状态Token</p>
+<blockquote>
+<p>注意，所谓无状态Token就是服务端不存储Token，而让客户端存储。</p>
+</blockquote>
+<p>你可能想问，如果服务端不存，那怎么验证Token呢？</p>
+<blockquote>
+<p>假设我用这个数据<code>{id:12345}</code>生成一个<code>token</code>,这个<code>token</code>分为三段信息：</p>
+<p>第一段是头部<code>Header</code>，包括的信息有签名使用的算法（HS256等）、令牌的类型等。</p>
+<p>第二部分就是我们的数据<code>Payload</code>通过<code>base64</code>加密。包括发行人、到期时间、发布时间以及自定义字段等数据。</p>
+<p>第三部分是加密的签名。通过<code>Header</code>和<code>Payload</code>以及我们的服务端的私钥生成。签名是对上面两部分数据签名，通过指定的算法生成哈希，以确保数据不会被篡改。</p>
+</blockquote>
+<p>因此，当服务端发回Token时，<strong>服务端再次对第一二部分进行数字签名，与第三部分对比</strong>。由于服务器私钥我们认为他是安全的，别人无法获得，因此当这两个值是一样的，则我们可以认为<strong>用户的登录信息没有被篡改。</strong>因此完成了Token的验证。</p>
+<p>综上，Token的作用是<strong>验证身份</strong>，<strong>安全问题不在它本身的职责范围内</strong></p>
+<h2 id="非常容易搞混的点"><a href="#非常容易搞混的点" class="headerlink" title="非常容易搞混的点"></a>非常容易搞混的点</h2><p>这个点便是<strong>安全问题。</strong></p>
+<p>你可能会想，倘若我发起<strong>中间人攻击</strong>：我截取了服务端返回的Token值，那么我便可以伪造真实的用户做一些坏事。</p>
+<p>没错，的确会这样，然而这不是Token的问题，你想，就算用cookie+session难道不会遇到这种问题嘛？</p>
+<p>那怎么办？</p>
+<p>事实上，这是<strong>HTTPS中的SSL/TLS防止的事情</strong>：通过对计算机中的网络流量进行加密（密钥协商是通过SSL握手协商而得），就算截取到了这个密文也无法进行破解，除非它们能够以某种方式获取服务器的私有SSL密钥的副本（不太可能）。</p>
+<p>同样还有一些别的安全防范手段：</p>
+<p>比如就不想别人知道<code>token</code>里面的数据，那就可以在给这个数据加一下密。或者担心这个<code>token</code>会被别人获取，照成这个用户的损失,那就需要在加别的手段来保证，比如通过验证来访的 ip ，比如设置更短的过期时间，比如你用的<code>HTTPS</code>，或者添加更多的验证等等。通过增加第三方的窃取成本，来降低被窃取的几率！</p>
+<p>这便是风控手段。</p>
+<p>用一个形象的例子来解释：</p>
+<blockquote>
+<p>你可以把<code>token</code>想象为银行的验钞机,验钞机的职责是验证假钞保证收进来的钱都是真钱，至于这个钱是偷的抢的,还是正常交易，那就不是验钞机管的了，那是警察叔叔管的。</p>
+</blockquote>
+<h2 id="扯床单"><a href="#扯床单" class="headerlink" title="扯床单"></a>扯床单</h2><p>什么叫扯床单？就是当你铺床时，左边的床单没平，于是你用力一拉…左边的床单是平了，然而右边又乱了……</p>
+<p><strong>Token规避了CSRF攻击，然而却增加了XSS攻击的风险</strong></p>
+<p>Token一般我们存在哪里？对！客户端。那客户端的哪里？</p>
+<p>存在cookie里吗？那本质上是不是又和cookie+session一样了？会造成token版的“CSRF”攻击吧。</p>
+<p>一般我们存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
+<p>这两个值是不会像cookie一样被自动携带访问某些网站的。</p>
+<p><strong>然而</strong>，这两个值是可以被JavaScript访问的，也就是说，仍然会有XSS攻击的风险！</p>
+]]></content>
+      <tags>
+        <tag>Token</tag>
       </tags>
   </entry>
 </search>
