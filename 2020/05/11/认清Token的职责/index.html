@@ -149,10 +149,11 @@
 <p>你可以把<code>token</code>想象为银行的验钞机,验钞机的职责是验证假钞保证收进来的钱都是真钱，至于这个钱是偷的抢的,还是正常交易，那就不是验钞机管的了，那是警察叔叔管的。</p>
 </blockquote>
 <h2 id="扯床单"><a href="#扯床单" class="headerlink" title="扯床单"></a>扯床单</h2><p>什么叫扯床单？就是当你铺床时，左边的床单没平，于是你用力一拉…左边的床单是平了，然而右边又乱了……</p>
-<p><strong>Token规避了CSRF攻击，然而却增加了XSS攻击的风险</strong></p>
+<p><strong>Token规避了CSRF攻击，然而却仍然有XSS攻击的风险</strong></p>
 <p>Token一般我们存在哪里？对！客户端。那客户端的哪里？</p>
 <p>存在cookie里吗？那本质上是不是又和cookie+session一样了？会造成token版的“CSRF”攻击吧。</p>
-<p>一般我们存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
+<p>但是可以设置SameSite防止CSRF，也可以设置HttpOnly使得JS无法获取。</p>
+<p>也可以存在<strong>WebStorage</strong>里，比如<strong>LocalStorage、SessionStorage</strong>里。</p>
 <p>这两个值是不会像cookie一样被自动携带访问某些网站的。</p>
 <p><strong>然而</strong>，这两个值是可以被JavaScript访问的，也就是说，仍然会有XSS攻击的风险！</p>
 
