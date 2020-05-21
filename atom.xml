@@ -169,13 +169,13 @@
     <link href="http://yoursite.com/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/"/>
     <id>http://yoursite.com/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/</id>
     <published>2020-05-15T06:33:59.000Z</published>
-    <updated>2020-05-15T08:36:15.016Z</updated>
+    <updated>2020-05-21T07:13:56.677Z</updated>
     
     <summary type="html">
     
       &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;最近有复习到浏览器对CSS、JS、媒体资源文件（图片、音频等）的加载和解析。&lt;/p&gt;
 &lt;p&gt;当我们解析HTML的时候，遇到上述资源，会不会阻塞HTML解析呢？&lt;/p&gt;
-&lt;h2 id=&quot;浏览器渲染流程&quot;&gt;&lt;a href=&quot;#浏览器渲染流程&quot; class=&quot;headerlink&quot; title=&quot;浏览器渲染流程&quot;&gt;&lt;/a&gt;浏览器渲染流程&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://sbimg.cn/image/pXVko&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;&lt;img src=&quot;https://wx1.sbimg.cn/2020/05/15/3987507-1bfba2f13098339f.jpg&quot; alt=&quot;3987507-1bfba2f13098339f.jpg&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;浏览器渲染流程&quot;&gt;&lt;a href=&quot;#浏览器渲染流程&quot; class=&quot;headerlink&quot; title=&quot;浏览器渲染流程&quot;&gt;&lt;/a&gt;浏览器渲染流程&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://wx1.sbimg.cn/2020/05/21/3987507-1bfba2f13098339f.jpg&quot; alt=&quot;3987507-1bfba2f13098339f.jpg&quot;&gt;]&lt;/p&gt;
 &lt;p&gt;1、&lt;strong&gt;解析HTML生成DOM树&lt;/strong&gt;：渲染引擎首先解析HTML文档，生成DOM树&lt;/p&gt;
 &lt;p&gt;2、&lt;strong&gt;生成CSSOM树&lt;/strong&gt;：无论是内联式、外联是还是嵌入式引入的css样式都会被解析生成CSSOM树。注意，&lt;strong&gt;该步操作与步骤一是并行的&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;3、&lt;strong&gt;构建Render树&lt;/strong&gt;：根据DOM树与CSSOM树生成另一颗用于渲染的Render树。&lt;/p&gt;
@@ -229,7 +229,7 @@
     <link href="http://yoursite.com/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/"/>
     <id>http://yoursite.com/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/</id>
     <published>2020-05-13T12:09:57.000Z</published>
-    <updated>2020-05-13T12:38:15.835Z</updated>
+    <updated>2020-05-21T07:20:47.917Z</updated>
     
     <summary type="html">
     
@@ -241,7 +241,7 @@
 &lt;h2 id=&quot;疑问&quot;&gt;&lt;a href=&quot;#疑问&quot; class=&quot;headerlink&quot; title=&quot;疑问&quot;&gt;&lt;/a&gt;疑问&lt;/h2&gt;&lt;p&gt;WebRTC 本身提供的是&lt;strong&gt;1 对 1&lt;/strong&gt; 的通信模型，在 STUN/TURN 的辅助下，如果能实现 NAT 穿越，那么两个浏览器是可以直接进行媒体数据交换的；如果不能实现 NAT 穿越，那么只能通过 TURN 服务器进行数据转发的方式实现通信。目前来看，Google 开源的用于学习和研究的项目基本都是基于 STUN/TURN 的 1 对 1 通信。&lt;/p&gt;
 &lt;p&gt;一些多人场景中，倘若想实现多对多，那怎么办？&lt;/p&gt;
 &lt;h2 id=&quot;Mesh架构&quot;&gt;&lt;a href=&quot;#Mesh架构&quot; class=&quot;headerlink&quot; title=&quot;Mesh架构&quot;&gt;&lt;/a&gt;Mesh架构&lt;/h2&gt;&lt;p&gt;最容易想到的便是，对于多人会议中的每个人，都与剩余的人进行P2P的连接。如下图&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://wx2.sbimg.cn/2020/05/13/-2020-05-13-201611.png&quot; alt=&quot;-2020-05-13-201611.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://wx2.sbimg.cn/2020/05/21/-2020-05-13-201611.png&quot; alt=&quot;-2020-05-13-201611.png&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -256,7 +256,7 @@
     <link href="http://yoursite.com/2020/05/12/Vue-nextTick/"/>
     <id>http://yoursite.com/2020/05/12/Vue-nextTick/</id>
     <published>2020-05-12T07:40:30.000Z</published>
-    <updated>2020-05-12T10:45:53.102Z</updated>
+    <updated>2020-05-21T07:17:47.579Z</updated>
     
     <summary type="html">
     
@@ -277,7 +277,7 @@
     
     
     
-      <category term="vue" scheme="http://yoursite.com/tags/vue/"/>
+      <category term="Vue" scheme="http://yoursite.com/tags/Vue/"/>
     
   </entry>
   

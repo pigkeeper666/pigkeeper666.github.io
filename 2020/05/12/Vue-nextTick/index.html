@@ -128,14 +128,14 @@
 <blockquote>
 <p>（1）所有<strong>同步任务</strong>都在主线程上执行，形成一个执行栈（execution context stack）。<br>（2）主线程之外，还存在一个<strong>“任务队列”（task queue）</strong>。只要<strong>异步任务有了运行结果</strong>，就在”任务队列”之中<strong>放置</strong>一个事件。<br>（3）一旦”执行栈”中的所有<strong>同步任务执行完毕</strong>，系统就会读取”任务队列”，看看里面有哪些事件。那些对应的异步任务，于是结束等待状态，进入执行栈，开始执行。<br>（4）主线程不断<strong>重复</strong>上面的第三步。</p>
 </blockquote>
-<p><a href="https://sbimg.cn/image/mlBy1" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/12/3835190331-580cd2a9443a7_articlex.md.png" alt="3835190331-580cd2a9443a7_articlex.md.png"></a></p>
+<p><a href="https://sbimg.cn/image/mlBy1" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/21/3835190331-580cd2a9443a7_articlex.png" alt="3835190331-580cd2a9443a7_articlex.png"></a></p>
 <h2 id="事件循环说明"><a href="#事件循环说明" class="headerlink" title="事件循环说明"></a>事件循环说明</h2><p>Vue在修改数据后，视图不会立即更新，而是等同一事件循环中所有数据变化完成后，再统一进行视图更新。</p>
 <p>举例如下：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//改变数据</span></span><br><span class="line">vm.message = <span class="string">'changed'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//想要立即使用更新后的DOM。这样不行，因为设置message后DOM还没有更新</span></span><br><span class="line"><span class="built_in">console</span>.log(vm.$el.textContent) <span class="comment">// 并不会得到'changed'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//这样可以，nextTick里面的代码会在DOM更新后执行</span></span><br><span class="line">Vue.nextTick(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(vm.$el.textContent) <span class="comment">//可以得到'changed'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 
 <p>你的本意是想要使用已经更新完的DOM。如果不用nextTick，你在修改完值以后DOM还没有进行更新呢！</p>
 <p>图解如下：</p>
-<p><a href="https://sbimg.cn/image/mlgbJ" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/12/1596618069-5a5da8c8522c2_articlex.png" alt="1596618069-5a5da8c8522c2_articlex.png"></a></p>
+<p><a href="https://sbimg.cn/image/mlgbJ" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/21/1596618069-5a5da8c8522c2_articlex.png" alt="1596618069-5a5da8c8522c2_articlex.png"></a></p>
 <p>此时的事件循环过程如下：</p>
 <ul>
 <li>第一个tick（上图的第一个黑方块，即本次更新循环）<ul>
@@ -159,9 +159,9 @@
 <p>总之，异步是单独的一个tick，不会和同步在一个 tick 里发生，也是 DOM 不会马上改变的原因。</p>
 </blockquote>
 <h2 id="解决问题（应用场景）"><a href="#解决问题（应用场景）" class="headerlink" title="解决问题（应用场景）"></a>解决问题（应用场景）</h2><p>假设一个场景要实现以下需求：</p>
-<p><a href="https://sbimg.cn/image/mls2m" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/12/QQ20200512160954.jpg" alt="QQ20200512160954.jpg"></a></p>
+<p><a href="https://sbimg.cn/image/mls2m" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/21/QQ20200512160954.jpg" alt="QQ20200512160954.jpg"></a></p>
 <p>当我点击<code>+New Tag</code>按钮时，这个按钮会变成一个输入框，并且<strong>自动获取焦点</strong>，如下：</p>
-<p><a href="https://sbimg.cn/image/mluM4" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/12/QQ20200512161255.jpg" alt="QQ20200512161255.jpg"></a></p>
+<p><a href="https://sbimg.cn/image/mluM4" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/21/QQ20200512161255.jpg" alt="QQ20200512161255.jpg"></a></p>
 <p>逻辑上的做法是：输入框之前的 属性<code>v-show</code>为false，我们只需要将其改为true，然后再获取输入框的DOM元素，调用原生事件<code>focus()</code>。</p>
 <p>错误代码（按正常逻辑）：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">showsou()&#123;</span><br><span class="line">  <span class="keyword">this</span>.showit = <span class="literal">true</span> <span class="comment">//修改 v-show</span></span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">"keywords"</span>).focus()  <span class="comment">//在第一个 tick 里，获取不到输入框，自然也获取不到焦点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -238,7 +238,7 @@
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/" rel="tag">vue</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li></ul>
 
 
     </footer>

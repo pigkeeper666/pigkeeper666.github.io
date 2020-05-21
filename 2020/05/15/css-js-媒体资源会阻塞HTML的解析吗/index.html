@@ -106,7 +106,7 @@
       
       <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有复习到浏览器对CSS、JS、媒体资源文件（图片、音频等）的加载和解析。</p>
 <p>当我们解析HTML的时候，遇到上述资源，会不会阻塞HTML解析呢？</p>
-<h2 id="浏览器渲染流程"><a href="#浏览器渲染流程" class="headerlink" title="浏览器渲染流程"></a>浏览器渲染流程</h2><p><a href="https://sbimg.cn/image/pXVko" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/15/3987507-1bfba2f13098339f.jpg" alt="3987507-1bfba2f13098339f.jpg"></a></p>
+<h2 id="浏览器渲染流程"><a href="#浏览器渲染流程" class="headerlink" title="浏览器渲染流程"></a>浏览器渲染流程</h2><p><img src="https://wx1.sbimg.cn/2020/05/21/3987507-1bfba2f13098339f.jpg" alt="3987507-1bfba2f13098339f.jpg">]</p>
 <p>1、<strong>解析HTML生成DOM树</strong>：渲染引擎首先解析HTML文档，生成DOM树</p>
 <p>2、<strong>生成CSSOM树</strong>：无论是内联式、外联是还是嵌入式引入的css样式都会被解析生成CSSOM树。注意，<strong>该步操作与步骤一是并行的</strong></p>
 <p>3、<strong>构建Render树</strong>：根据DOM树与CSSOM树生成另一颗用于渲染的Render树。</p>
@@ -132,7 +132,7 @@
 <p>那两个属性的区别是什么呢？</p>
 <p><strong>答：执行的时机</strong></p>
 <p><strong>下载完后，defer会等到HTML解析完后再执行，而async一下载完后就立即执行</strong></p>
-<p><a href="https://sbimg.cn/image/pXTEw" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/15/3987507-a4b5763f7926f299.png" alt="3987507-a4b5763f7926f299.png"></a></p>
+<p><img src="https://wx2.sbimg.cn/2020/05/21/3987507-a4b5763f7926f299.png" alt="3987507-a4b5763f7926f299.png"></p>
 <p>绿色表示HTML解析过程，蓝色表示 script 脚本文件的网络读取过程（加载或下载），红色表示执行过程。</p>
 <h2 id="媒体资源文件"><a href="#媒体资源文件" class="headerlink" title="媒体资源文件"></a>媒体资源文件</h2><p>媒体资源文件包括图片、音频视频等，遇到这些资源时，<strong>不会阻塞HTML的解析</strong></p>
 <p>HTML的解析不依赖于这此媒体资源，这些媒体资源也不会影响当前Dom树的结构，所以，这些媒体资源的加载不会且也没有必要阻塞HTML的解析！</p>

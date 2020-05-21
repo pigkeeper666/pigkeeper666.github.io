@@ -1,107 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>WebRTC的三种架构</title>
-    <url>/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/</url>
-    <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
-<p>本文参考：</p>
-<p><a href="https://www.cnblogs.com/yiyi17/p/12076657.html" target="_blank" rel="noopener">https://www.cnblogs.com/yiyi17/p/12076657.html</a></p>
-<p><a href="https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html" target="_blank" rel="noopener">https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html</a></p>
-</blockquote>
-<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><p>WebRTC 本身提供的是<strong>1 对 1</strong> 的通信模型，在 STUN/TURN 的辅助下，如果能实现 NAT 穿越，那么两个浏览器是可以直接进行媒体数据交换的；如果不能实现 NAT 穿越，那么只能通过 TURN 服务器进行数据转发的方式实现通信。目前来看，Google 开源的用于学习和研究的项目基本都是基于 STUN/TURN 的 1 对 1 通信。</p>
-<p>一些多人场景中，倘若想实现多对多，那怎么办？</p>
-<h2 id="Mesh架构"><a href="#Mesh架构" class="headerlink" title="Mesh架构"></a>Mesh架构</h2><p>最容易想到的便是，对于多人会议中的每个人，都与剩余的人进行P2P的连接。如下图</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></p>
-<a id="more"></a>
-
-<p>即多个终端两两进行连接，因而形成了网状结构。</p>
-<p>该方案的优势：</p>
-<p>1、不需要服务器中转服务器（然而一开始的交换信令和NAT穿越还是需要服务器的），实现简单。</p>
-<p>2、充分利用了客户端的带宽资源，节省了服务器带宽的资源。</p>
-<p>3、由于媒体流信息是端到端传输的，不用中转服务器，因而更加的<strong>隐私、安全</strong></p>
-<p>该方案的劣势：</p>
-<p>1、对于每一个人来说，都需要给剩下的人每人发一份自己的媒体流，对上行的带宽占用很大（上下行带宽可以理解为上传与下载带宽）。当人多的时候，占用的宽带就会很大。</p>
-<p>2、由于是客户本地对媒体流进行解码编码，因此人多的时候对CPU、内存资源会占用很多。</p>
-<p>3*、在多人通信时，如果有部分人不能实现 NAT 穿越，但还想让这些人与其他人互通，就显得很麻烦，需要做出更多的可靠性设计。</p>
-<h2 id="MCU架构"><a href="#MCU架构" class="headerlink" title="MCU架构"></a>MCU架构</h2><p>MCU架构便是有一个中心的媒体服务器，接受每个共享端的媒体流。在这个服务上，对所有人的媒体流进行解码、混合、编码，再发送给所有人。如下图：</p>
-<p><a href="https://sbimg.cn/image/myzk8" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/13/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></a></p>
-<p>该方案的优势：</p>
-<p>1、连接数较少（可以对比一下MCU和MESH的图），对于浏览器的压力较小。</p>
-<p>2、<strong>同步</strong>的音视频通讯，也就是所有参加的人看到的是相同的画面，适合多人视频会议。</p>
-<p>3*、作为音视频网关，通过解码、再编码可以屏蔽不同编解码设备的差异化，满足更多客户的集成需求，提升用户体验和产品竞争力。</p>
-<p>劣势：</p>
-<p>1、中间的服务器要干很多的事情，压力很大，需要有较高的配置。</p>
-<p>2、会有延迟，因为服务器处理、传输会带来延迟。<strong>与同步的优点是可以共存的，不要想岔了</strong></p>
-<p>3、相比MESH架构，牺牲了隐私与安全。</p>
-<h2 id="SFU架构"><a href="#SFU架构" class="headerlink" title="SFU架构"></a>SFU架构</h2><p>SFU架构类似于一个媒体流路由器，与MCU不同的是<strong>SFU服务器不用编码混合等等，只需要转发给其他终端</strong></p>
-<p><img src="https://wx2.sbimg.cn/2020/05/13/-2020-05-13-202806.png" alt="-2020-05-13-202806.png"></p>
-<p>优势：</p>
-<p>1、相比于MCU架构，由于是数据包直接转发，不需要编码解码，对服务器CPU资源消耗小。</p>
-<p>2、相比于MCU架构，直接转发降低了延迟，提高了实时性。</p>
-<p>3*、最后带来了很大的灵活性，能够更好地适应不同的网络状况和终端类型。</p>
-<p>劣势：</p>
-<p>1、由于是数据包转发，参与人观看多路视频可能会出现不同步。对于相同的视频流，不同的参与人看到的画面可能会不一致。</p>
-<p>2、相比MESH架构，牺牲了隐私与安全。</p>
-<p>3*、消耗带宽也比较大</p>
-<h2 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h2><p>我个人的项目目前正考虑升级架构，升级完成会更新。</p>
-]]></content>
-      <tags>
-        <tag>WebRTC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>别再用对象代替Map了</title>
-    <url>/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>其实没有标题那么夸张，大家根据喜欢与熟练程度自己选用就好。</p>
-<p>只是今天博主用对象代替Map被坑了，所以决心再也不偷懒了……</p>
-<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>其实JS里的对象和Map都可以用来存键值对。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="string">'name'</span>:<span class="string">'养猪大师'</span>,</span><br><span class="line">     num:<span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="string">'name'</span>,<span class="string">'养猪大师'</span>)</span><br><span class="line">map.set(<span class="string">'num'</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>然而有区别，虽然存的都是key-value，但是在对象中，key的类型会被转化为<strong>字符串</strong></p>
-<p>但是map的key值不会被转换哦</p>
-</blockquote>
-<p>同样，我们也可以通过方法，判断容器里是否有某个key</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[name])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;  <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'name'</span>) <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'num'</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<p>但是细心的你有没有发现，我少写了一个</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>你猜猜会输出啥？</p>
-<a id="more"></a>
-
-<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
-<p>上面这段代码会返回false。</p>
-<p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
-<p>你也许会恍然大悟，然后觉得这有什么，下次注意就好。</p>
-<p>但是这种东西很玄学的，可能你就真没注意到呢？</p>
-<p>如果一定要用obj来写，那我推荐用这样的写法：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num]!==<span class="literal">undefined</span>)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="来做做这道题"><a href="#来做做这道题" class="headerlink" title="来做做这道题"></a>来做做这道题</h2><blockquote>
-<p>来源：leetcode:面试题48</p>
-<p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
-<p>示例 1:</p>
-<p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。<br>示例 2:</p>
-<p>输入: “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。<br>示例 3:</p>
-<p>输入: “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。<br>     请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。</p>
-<p>提示：</p>
-<p>s.length &lt;= 40000</p>
-</blockquote>
-<p>解答可以自行百度，大致思路是 滑动窗口+hash表优化。</p>
-<p>然而博主v1.0的版本如何都无法通过：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> hash = []</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;</span><br><span class="line">       <span class="keyword">if</span>(hash[s[tail]])&#123;</span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,hash[s[tail]]+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">       hash[s[tail]] = tail</span><br><span class="line">       max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>原因正是，<strong>返回的value的值是0，破坏了我的计划！</strong>，让我整整找了半小时。</p>
-<p>老老实实用Map吧</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;      </span><br><span class="line">       <span class="keyword">if</span>(map.has(s[tail]))&#123;</span><br><span class="line">           <span class="comment">// ！！！注意要max</span></span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,map.get(s[tail])+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">      map.set(s[tail],tail)</span><br><span class="line">      max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Map</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>RESTful</title>
     <url>/2020/05/19/RESTful/</url>
     <content><![CDATA[<blockquote>
@@ -162,14 +61,14 @@
 <blockquote>
 <p>（1）所有<strong>同步任务</strong>都在主线程上执行，形成一个执行栈（execution context stack）。<br>（2）主线程之外，还存在一个<strong>“任务队列”（task queue）</strong>。只要<strong>异步任务有了运行结果</strong>，就在”任务队列”之中<strong>放置</strong>一个事件。<br>（3）一旦”执行栈”中的所有<strong>同步任务执行完毕</strong>，系统就会读取”任务队列”，看看里面有哪些事件。那些对应的异步任务，于是结束等待状态，进入执行栈，开始执行。<br>（4）主线程不断<strong>重复</strong>上面的第三步。</p>
 </blockquote>
-<p><a href="https://sbimg.cn/image/mlBy1" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/12/3835190331-580cd2a9443a7_articlex.md.png" alt="3835190331-580cd2a9443a7_articlex.md.png"></a></p>
+<p><a href="https://sbimg.cn/image/mlBy1" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/21/3835190331-580cd2a9443a7_articlex.png" alt="3835190331-580cd2a9443a7_articlex.png"></a></p>
 <h2 id="事件循环说明"><a href="#事件循环说明" class="headerlink" title="事件循环说明"></a>事件循环说明</h2><p>Vue在修改数据后，视图不会立即更新，而是等同一事件循环中所有数据变化完成后，再统一进行视图更新。</p>
 <p>举例如下：</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//改变数据</span></span><br><span class="line">vm.message = <span class="string">'changed'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//想要立即使用更新后的DOM。这样不行，因为设置message后DOM还没有更新</span></span><br><span class="line"><span class="built_in">console</span>.log(vm.$el.textContent) <span class="comment">// 并不会得到'changed'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//这样可以，nextTick里面的代码会在DOM更新后执行</span></span><br><span class="line">Vue.nextTick(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(vm.$el.textContent) <span class="comment">//可以得到'changed'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 
 <p>你的本意是想要使用已经更新完的DOM。如果不用nextTick，你在修改完值以后DOM还没有进行更新呢！</p>
 <p>图解如下：</p>
-<p><a href="https://sbimg.cn/image/mlgbJ" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/12/1596618069-5a5da8c8522c2_articlex.png" alt="1596618069-5a5da8c8522c2_articlex.png"></a></p>
+<p><a href="https://sbimg.cn/image/mlgbJ" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/21/1596618069-5a5da8c8522c2_articlex.png" alt="1596618069-5a5da8c8522c2_articlex.png"></a></p>
 <p>此时的事件循环过程如下：</p>
 <ul>
 <li>第一个tick（上图的第一个黑方块，即本次更新循环）<ul>
@@ -193,9 +92,9 @@
 <p>总之，异步是单独的一个tick，不会和同步在一个 tick 里发生，也是 DOM 不会马上改变的原因。</p>
 </blockquote>
 <h2 id="解决问题（应用场景）"><a href="#解决问题（应用场景）" class="headerlink" title="解决问题（应用场景）"></a>解决问题（应用场景）</h2><p>假设一个场景要实现以下需求：</p>
-<p><a href="https://sbimg.cn/image/mls2m" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/12/QQ20200512160954.jpg" alt="QQ20200512160954.jpg"></a></p>
+<p><a href="https://sbimg.cn/image/mls2m" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/21/QQ20200512160954.jpg" alt="QQ20200512160954.jpg"></a></p>
 <p>当我点击<code>+New Tag</code>按钮时，这个按钮会变成一个输入框，并且<strong>自动获取焦点</strong>，如下：</p>
-<p><a href="https://sbimg.cn/image/mluM4" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/12/QQ20200512161255.jpg" alt="QQ20200512161255.jpg"></a></p>
+<p><a href="https://sbimg.cn/image/mluM4" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/21/QQ20200512161255.jpg" alt="QQ20200512161255.jpg"></a></p>
 <p>逻辑上的做法是：输入框之前的 属性<code>v-show</code>为false，我们只需要将其改为true，然后再获取输入框的DOM元素，调用原生事件<code>focus()</code>。</p>
 <p>错误代码（按正常逻辑）：</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">showsou()&#123;</span><br><span class="line">  <span class="keyword">this</span>.showit = <span class="literal">true</span> <span class="comment">//修改 v-show</span></span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">"keywords"</span>).focus()  <span class="comment">//在第一个 tick 里，获取不到输入框，自然也获取不到焦点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -203,7 +102,54 @@
 <p>这个DOM还没更新我们就调用focus了，肯定没效果。所以我们要让DOM更新完再调用。修改为：</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">showsou()&#123;</span><br><span class="line">  <span class="keyword">this</span>.showit = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">this</span>.$nextTick(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// DOM 更新了</span></span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">"keywords"</span>).focus()</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       <tags>
-        <tag>vue</tag>
+        <tag>Vue</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>typeof + instanceof实现</title>
+    <url>/2020/05/18/typeof-instanceof%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>typeof和instanceof常用来判断一个变量是什么类型的。本篇会说明两者的区别并手写一个instanceof</p>
+<h2 id="typeof"><a href="#typeof" class="headerlink" title="typeof"></a>typeof</h2><ul>
+<li><p>对于typeof来说，只返回以下几个结果：<code>number</code>、<code>boolean</code>、<code>string</code>、<code>function</code>、<code>object</code>、<code>undefined</code></p>
+</li>
+<li><p>注意<code>function</code>这种引用类型是会返回<code>function</code>的，并不会返回<code>Object</code></p>
+</li>
+<li><p>对于其他的引用类型参数，时终返回<code>object</code>。<strong>这一点导致无法判断准确的类型</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="keyword">typeof</span> arr <span class="comment">// "object"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> date = <span class="keyword">new</span> <span class="built_in">Date</span>()</span><br><span class="line"><span class="keyword">typeof</span> date <span class="comment">// "object"</span></span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+</li>
+<li><p>有一个很特殊的值，null</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typeof</span> <span class="literal">null</span> <span class="comment">// "object"</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>null不是一个空引用, 而是一个原始值, 参考<a href="https://link.zhihu.com/?target=http%3A//lzw.me/pages/ecmascript/%2320">ECMAScript5.1中文版</a> 4.3.11节; 它只是期望此处将引用一个对象, 注意是”期望”, 参考 <a href="https://link.zhihu.com/?target=https%3A//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null">null - JavaScript</a>.</li>
+<li>typeof null结果是object, 这是个历史遗留bug, 参考 <a href="https://link.zhihu.com/?target=https%3A//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof">typeof - JavaScript</a></li>
+<li>在ECMA6中, 曾经有提案为历史平凡, 将type null的值纠正为null, 但最后提案被拒了. 理由是历史遗留代码太多, 不想得罪人, 不如继续将错就错当和事老, 参考 <a href="https://link.zhihu.com/?target=http%3A//wiki.ecmascript.org/doku.php%3Fid%3Dharmony%3atypeof_null">harmony:typeof_null [ES Wiki]</a></li>
+</ol>
+</blockquote>
+</li>
+<li><p>typeof 来获取一个变量是否存在，如 if(typeof a!=”undefined”){alert(“ok”)}，而<strong>不要</strong>去使用 if(a), 因为如果 a 不存在（未声明）则会出错。</p>
+<h2 id="instanceof"><a href="#instanceof" class="headerlink" title="instanceof"></a>instanceof</h2></li>
+<li><p>instanceof是用来判断一个变量是否属于某个对象的实例</p>
+</li>
+<li><p>官方的话：该运算符用来测试一个对象在其原型链中是否存在一个构造函数prototype属性</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> <span class="built_in">Array</span>();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(a <span class="keyword">instanceof</span> <span class="built_in">Array</span>);    <span class="comment">// 会返回 true</span></span><br><span class="line"><span class="built_in">console</span>.log(a <span class="keyword">instanceof</span> <span class="built_in">Object</span>);    <span class="comment">// 也会返回 true</span></span><br><span class="line"></span><br><span class="line">因为<span class="built_in">Array</span>是object的<span class="string">'子类'</span>，他们都在a的原型链上</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>这个判断比较准确哦！</p>
+</li>
+</ul>
+<h2 id="手写instanceof"><a href="#手写instanceof" class="headerlink" title="手写instanceof"></a>手写instanceof</h2><p>核心就是，获得第一个操作数的原型对象，如果与第二个操作数的原型对象不相等，则继续找原型对象的原型</p>
+<p>递归版本：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myInstanceof</span>(<span class="params">A,B</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">const</span> proto = <span class="built_in">Object</span>.getPrototypeOf(A)</span><br><span class="line">    <span class="keyword">const</span> prototype = B.prototype</span><br><span class="line">    <span class="keyword">if</span>(proto === <span class="literal">null</span> || prototype ===<span class="literal">undefined</span> )&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(proto === prototype)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">// 递归调用</span></span><br><span class="line">        myInstanceof(<span class="built_in">Object</span>.getPrototypeof(proto),B)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>循环版本：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myInstanceof</span>(<span class="params">A,B</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">const</span> proto = <span class="built_in">Object</span>.getPrototypeOf(A)</span><br><span class="line">    <span class="keyword">const</span> prototype = B.prototype</span><br><span class="line">    <span class="comment">// 为什么是null呢？因为最顶层Object.prototype.__proto__就是null</span></span><br><span class="line">    <span class="keyword">while</span>(proto !==<span class="literal">null</span> &amp;&amp; prototype !==<span class="literal">undefined</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(proto === prototype)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            proto = <span class="built_in">Object</span>.getPrototypeof(proto)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>JavaScript</tag>
       </tags>
   </entry>
   <entry>
@@ -211,7 +157,7 @@
     <url>/2020/05/15/css-js-%E5%AA%92%E4%BD%93%E8%B5%84%E6%BA%90%E4%BC%9A%E9%98%BB%E5%A1%9EHTML%E7%9A%84%E8%A7%A3%E6%9E%90%E5%90%97/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有复习到浏览器对CSS、JS、媒体资源文件（图片、音频等）的加载和解析。</p>
 <p>当我们解析HTML的时候，遇到上述资源，会不会阻塞HTML解析呢？</p>
-<h2 id="浏览器渲染流程"><a href="#浏览器渲染流程" class="headerlink" title="浏览器渲染流程"></a>浏览器渲染流程</h2><p><a href="https://sbimg.cn/image/pXVko" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/15/3987507-1bfba2f13098339f.jpg" alt="3987507-1bfba2f13098339f.jpg"></a></p>
+<h2 id="浏览器渲染流程"><a href="#浏览器渲染流程" class="headerlink" title="浏览器渲染流程"></a>浏览器渲染流程</h2><p><img src="https://wx1.sbimg.cn/2020/05/21/3987507-1bfba2f13098339f.jpg" alt="3987507-1bfba2f13098339f.jpg">]</p>
 <p>1、<strong>解析HTML生成DOM树</strong>：渲染引擎首先解析HTML文档，生成DOM树</p>
 <p>2、<strong>生成CSSOM树</strong>：无论是内联式、外联是还是嵌入式引入的css样式都会被解析生成CSSOM树。注意，<strong>该步操作与步骤一是并行的</strong></p>
 <p>3、<strong>构建Render树</strong>：根据DOM树与CSSOM树生成另一颗用于渲染的Render树。</p>
@@ -237,7 +183,7 @@
 <p>那两个属性的区别是什么呢？</p>
 <p><strong>答：执行的时机</strong></p>
 <p><strong>下载完后，defer会等到HTML解析完后再执行，而async一下载完后就立即执行</strong></p>
-<p><a href="https://sbimg.cn/image/pXTEw" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/15/3987507-a4b5763f7926f299.png" alt="3987507-a4b5763f7926f299.png"></a></p>
+<p><img src="https://wx2.sbimg.cn/2020/05/21/3987507-a4b5763f7926f299.png" alt="3987507-a4b5763f7926f299.png"></p>
 <p>绿色表示HTML解析过程，蓝色表示 script 脚本文件的网络读取过程（加载或下载），红色表示执行过程。</p>
 <h2 id="媒体资源文件"><a href="#媒体资源文件" class="headerlink" title="媒体资源文件"></a>媒体资源文件</h2><p>媒体资源文件包括图片、音频视频等，遇到这些资源时，<strong>不会阻塞HTML的解析</strong></p>
 <p>HTML的解析不依赖于这此媒体资源，这些媒体资源也不会影响当前Dom树的结构，所以，这些媒体资源的加载不会且也没有必要阻塞HTML的解析！</p>
@@ -270,6 +216,334 @@
 ]]></content>
       <tags>
         <tag>浏览器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WebRTC的三种架构</title>
+    <url>/2020/05/13/WebRTC%E7%9A%84%E4%B8%89%E7%A7%8D%E6%9E%B6%E6%9E%84/</url>
+    <content><![CDATA[<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><blockquote>
+<p>本文参考：</p>
+<p><a href="https://www.cnblogs.com/yiyi17/p/12076657.html" target="_blank" rel="noopener">https://www.cnblogs.com/yiyi17/p/12076657.html</a></p>
+<p><a href="https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html" target="_blank" rel="noopener">https://www.cnblogs.com/yjmyzz/p/webrtc-multiparty-call-architecture.html</a></p>
+</blockquote>
+<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><p>WebRTC 本身提供的是<strong>1 对 1</strong> 的通信模型，在 STUN/TURN 的辅助下，如果能实现 NAT 穿越，那么两个浏览器是可以直接进行媒体数据交换的；如果不能实现 NAT 穿越，那么只能通过 TURN 服务器进行数据转发的方式实现通信。目前来看，Google 开源的用于学习和研究的项目基本都是基于 STUN/TURN 的 1 对 1 通信。</p>
+<p>一些多人场景中，倘若想实现多对多，那怎么办？</p>
+<h2 id="Mesh架构"><a href="#Mesh架构" class="headerlink" title="Mesh架构"></a>Mesh架构</h2><p>最容易想到的便是，对于多人会议中的每个人，都与剩余的人进行P2P的连接。如下图</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/21/-2020-05-13-201611.png" alt="-2020-05-13-201611.png"></p>
+<a id="more"></a>
+
+<p>即多个终端两两进行连接，因而形成了网状结构。</p>
+<p>该方案的优势：</p>
+<p>1、不需要服务器中转服务器（然而一开始的交换信令和NAT穿越还是需要服务器的），实现简单。</p>
+<p>2、充分利用了客户端的带宽资源，节省了服务器带宽的资源。</p>
+<p>3、由于媒体流信息是端到端传输的，不用中转服务器，因而更加的<strong>隐私、安全</strong></p>
+<p>该方案的劣势：</p>
+<p>1、对于每一个人来说，都需要给剩下的人每人发一份自己的媒体流，对上行的带宽占用很大（上下行带宽可以理解为上传与下载带宽）。当人多的时候，占用的宽带就会很大。</p>
+<p>2、由于是客户本地对媒体流进行解码编码，因此人多的时候对CPU、内存资源会占用很多。</p>
+<p>3*、在多人通信时，如果有部分人不能实现 NAT 穿越，但还想让这些人与其他人互通，就显得很麻烦，需要做出更多的可靠性设计。</p>
+<h2 id="MCU架构"><a href="#MCU架构" class="headerlink" title="MCU架构"></a>MCU架构</h2><p>MCU架构便是有一个中心的媒体服务器，接受每个共享端的媒体流。在这个服务上，对所有人的媒体流进行解码、混合、编码，再发送给所有人。如下图：</p>
+<p><img src="https://wx1.sbimg.cn/2020/05/21/-2020-05-13-201507.png" alt="-2020-05-13-201507.png"></p>
+<p>该方案的优势：</p>
+<p>1、连接数较少（可以对比一下MCU和MESH的图），对于浏览器的压力较小。</p>
+<p>2、<strong>同步</strong>的音视频通讯，也就是所有参加的人看到的是相同的画面，适合多人视频会议。</p>
+<p>3*、作为音视频网关，通过解码、再编码可以屏蔽不同编解码设备的差异化，满足更多客户的集成需求，提升用户体验和产品竞争力。</p>
+<p>劣势：</p>
+<p>1、中间的服务器要干很多的事情，压力很大，需要有较高的配置。</p>
+<p>2、会有延迟，因为服务器处理、传输会带来延迟。<strong>与同步的优点是可以共存的，不要想岔了</strong></p>
+<p>3、相比MESH架构，牺牲了隐私与安全。</p>
+<h2 id="SFU架构"><a href="#SFU架构" class="headerlink" title="SFU架构"></a>SFU架构</h2><p>SFU架构类似于一个媒体流路由器，与MCU不同的是<strong>SFU服务器不用编码混合等等，只需要转发给其他终端</strong></p>
+<p><img src="https://wx2.sbimg.cn/2020/05/21/-2020-05-13-202806.png" alt="-2020-05-13-202806.png"></p>
+<p>优势：</p>
+<p>1、相比于MCU架构，由于是数据包直接转发，不需要编码解码，对服务器CPU资源消耗小。</p>
+<p>2、相比于MCU架构，直接转发降低了延迟，提高了实时性。</p>
+<p>3*、最后带来了很大的灵活性，能够更好地适应不同的网络状况和终端类型。</p>
+<p>劣势：</p>
+<p>1、由于是数据包转发，参与人观看多路视频可能会出现不同步。对于相同的视频流，不同的参与人看到的画面可能会不一致。</p>
+<p>2、相比MESH架构，牺牲了隐私与安全。</p>
+<p>3*、消耗带宽也比较大</p>
+<h2 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h2><p>我个人的项目目前正考虑升级架构，升级完成会更新。</p>
+]]></content>
+      <tags>
+        <tag>WebRTC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>品字布局与圣杯布局</title>
+    <url>/2020/05/20/%E5%93%81%E5%AD%97%E5%B8%83%E5%B1%80%E4%B8%8E%E5%9C%A3%E6%9D%AF%E5%B8%83%E5%B1%80/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文将通过css flex来进行常见的布局（品字型布局与圣杯布局）</p>
+<h2 id="品字布局"><a href="#品字布局" class="headerlink" title="品字布局"></a>品字布局</h2><p>效果如下：</p>
+<p><img src="https://wx2.sbimg.cn/2020/05/20/-2020-05-20-233311.png" alt="-2020-05-20-233311.png"></p>
+<p>红色部分的是header，高度为定高（80px），模拟的是顶部导航条</p>
+<p>绿色部分的是left，宽度可以定死也可以自适应，模拟的是左侧导航条。</p>
+<p>黄色部分的是right，宽度可以定死也可以自适应，模拟的是主要内容区域。</p>
+<a id="more"></a>
+
+<p><strong>首先定义HTML结构</strong></p>
+<p>把整个页面分为上下两个结构，分别为header和down</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"header"</span>&gt;</span>header<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"down"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"left"</span>&gt;</span>left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"right"</span>&gt;</span>right<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>定义CSS</strong></p>
+<p>首先是基础的设置，清除所有的margin和padding</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">* &#123;</span><br><span class="line">    <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">padding</span>: <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于最外层的容器是body，我门需要让他占满整一个页面，于是用vh和vw进行设置。</p>
+<p>height：100vh表示高度占可视窗口的100%，vw同理</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们已经将整个页面结构分为上（header）下（down）两部分。我们为其设置flex布局，并将flex的方向改为colunm，这样就能形成上下结构。</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">    <span class="attribute">flex-direction</span>: column;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于header需要定高，于是为header设置高度</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.header</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: red;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们关注下面的结构：我们需要让left和right在一行里显示，于是我们再次用flex</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.down</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，left和right已经并为一行。</p>
+<p>但是，下半部分并没有撑满剩余的高度，于是我们使用<strong>flex:1</strong>属性让其自适应。</p>
+<p>flex:1是flex-growth:1的缩写。</p>
+<blockquote>
+<p>flex-growth规定项目将相对于其他灵活的项目进行扩展的量。默认值是 0</p>
+</blockquote>
+<p>我们可以这样理解，在上下结构中，除了上下两个div所占的高度外，剩下的空白区域的总高度是1</p>
+<p>那么，我们将这个1全部让给下半部分，于是：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.down</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时已经可以看到，撑满了整个高度。</p>
+<p>但此时，left和right并没有占满整行，我们利用flex的思想：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.left</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: green;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.right</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: yellow;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样，left和right就能平分宽度了</p>
+<blockquote>
+<p>当然，你也可以给left或者right的其中一个设定宽度，剩下的设置为flex:1</p>
+<p>也可以按比例来，比如一个flex设为2，一个设为1，那么他们的比例就是2：1</p>
+</blockquote>
+<p>完成！！</p>
+<h2 id="圣杯布局"><a href="#圣杯布局" class="headerlink" title="圣杯布局"></a>圣杯布局</h2><p>效果如下：</p>
+<p><a href="https://sbimg.cn/image/pusPJ" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/20/-2020-05-20-233249.png" alt="-2020-05-20-233249.png"></a></p>
+<p>圣杯布局是品字布局的加强版：</p>
+<p>其中，header和footer定高</p>
+<p>left main right 高度自适应</p>
+<p>left 和 right 定宽</p>
+<p>main宽度自适应。</p>
+<p>由于原理相同，这边只放代码，可以参照！</p>
+<p><strong>HTML结构</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 圣杯布局 --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- header与footer定高 left main right高度自适应 --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- left和right定宽 main宽度自适应 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"header"</span>&gt;</span>header<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"middle"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"left"</span>&gt;</span>left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"main"</span>&gt;</span>main<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"right"</span>&gt;</span>right<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"footer"</span>&gt;</span>footer<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>CSS样式</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">    * &#123;</span><br><span class="line">        <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">padding</span>: <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-tag">body</span> &#123;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">        <span class="attribute">display</span>: flex;</span><br><span class="line">        <span class="attribute">flex-direction</span>: column;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.header</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: red;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.middle</span> &#123;</span><br><span class="line">        <span class="attribute">display</span>: flex;</span><br><span class="line">        <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.left</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: yellow;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">200px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.main</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: purple;</span><br><span class="line">        <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.right</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: green;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">200px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.footer</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: blue;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>CSS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>别再用对象代替Map了</title>
+    <url>/2020/05/14/%E5%88%AB%E5%86%8D%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BB%A3%E6%9B%BFMap%E4%BA%86/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>其实没有标题那么夸张，大家根据喜欢与熟练程度自己选用就好。</p>
+<p>只是今天博主用对象代替Map被坑了，所以决心再也不偷懒了……</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>其实JS里的对象和Map都可以用来存键值对。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="string">'name'</span>:<span class="string">'养猪大师'</span>,</span><br><span class="line">     num:<span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">map.set(<span class="string">'name'</span>,<span class="string">'养猪大师'</span>)</span><br><span class="line">map.set(<span class="string">'num'</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>然而有区别，虽然存的都是key-value，但是在对象中，key的类型会被转化为<strong>字符串</strong></p>
+<p>但是map的key值不会被转换哦</p>
+</blockquote>
+<p>同样，我们也可以通过方法，判断容器里是否有某个key</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[name])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;  <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'name'</span>) <span class="comment">// true</span></span><br><span class="line">map.has(<span class="string">'num'</span>) <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>但是细心的你有没有发现，我少写了一个</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num])&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">false</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你猜猜会输出啥？</p>
+<a id="more"></a>
+
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>这就是博主今天刷题遇到的坑。</p>
+<p>上面这段代码会返回false。</p>
+<p><strong>obj的确有num这个属性，然而由于obj[num]会返回value值，也就是0，因此进了else</strong></p>
+<p>你也许会恍然大悟，然后觉得这有什么，下次注意就好。</p>
+<p>但是这种东西很玄学的，可能你就真没注意到呢？</p>
+<p>如果一定要用obj来写，那我推荐用这样的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(obj[num]!==<span class="literal">undefined</span>)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="literal">true</span>)</span><br><span class="line">&#125; <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="来做做这道题"><a href="#来做做这道题" class="headerlink" title="来做做这道题"></a>来做做这道题</h2><blockquote>
+<p>来源：leetcode:面试题48</p>
+<p>请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。</p>
+<p>示例 1:</p>
+<p>输入: “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。<br>示例 2:</p>
+<p>输入: “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。<br>示例 3:</p>
+<p>输入: “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。<br>     请注意，你的答案必须是 子串 的长度，”pwke” 是一个子序列，不是子串。</p>
+<p>提示：</p>
+<p>s.length &lt;= 40000</p>
+</blockquote>
+<p>解答可以自行百度，大致思路是 滑动窗口+hash表优化。</p>
+<p>然而博主v1.0的版本如何都无法通过：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> hash = []</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;</span><br><span class="line">       <span class="keyword">if</span>(hash[s[tail]])&#123;</span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,hash[s[tail]]+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">       hash[s[tail]] = tail</span><br><span class="line">       max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>原因正是，<strong>返回的value的值是0，破坏了我的计划！</strong>，让我整整找了半小时。</p>
+<p>老老实实用Map吧</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> lengthOfLongestSubstring = <span class="function"><span class="keyword">function</span> (<span class="params">s</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">let</span> head = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> max = <span class="number">0</span></span><br><span class="line">   <span class="keyword">let</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> tail = <span class="number">0</span> ; tail &lt; s.length ;tail++)&#123;      </span><br><span class="line">       <span class="keyword">if</span>(map.has(s[tail]))&#123;</span><br><span class="line">           <span class="comment">// ！！！注意要max</span></span><br><span class="line">            head = <span class="built_in">Math</span>.max(head,map.get(s[tail])+<span class="number">1</span>)</span><br><span class="line">       &#125;</span><br><span class="line">      map.set(s[tail],tail)</span><br><span class="line">      max = <span class="built_in">Math</span>.max(tail-head+<span class="number">1</span>,max)</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> max</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Map</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开篇！初心与目标</title>
+    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
+<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
+<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
+]]></content>
+      <tags>
+        <tag>测试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>图片懒加载与防抖节流</title>
+    <url>/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
+<p>下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。</p>
+<p>然而继续往下拉动后，这张图片会进行加载</p>
+<p><img src="https://wx1.sbimg.cn/2020/05/19/-2020-05-19-233124.png" alt="-2020-05-19-233124.png"></p>
+<a id="more"></a>
+
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>其实主要的思想与我之前的文章<a href="https://www.pigkeeper.xyz/2020/05/09/瀑布流效果/" target="_blank" rel="noopener">纯JS瀑布流效果与动态加载</a>里的动态加载非常的相似，都是计算一个滚动的阈值，达到这个阈值后便进行图片的加载。</p>
+<p><strong>首先我们搭建简单的html结构</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以注意到，img的src属性都是”./default.png”，这是一张默认图，也就是上图的蓝色图片，而图片真正的src存在data-src中。data-src是一个自定义的数据，当我们获取到某个img的dom节点对象时，我们可以通过一些语句来获得data-src的值，方法是：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">console</span>.log(img.dataset.src)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会输出data-src的内容</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>其次是css</strong></p>
+<p>这里只是限定图片的大小，并居中显示</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">        <span class="selector-tag">img</span> &#123;</span><br><span class="line">            <span class="attribute">width</span>: <span class="number">230px</span>;</span><br><span class="line">            <span class="attribute">height</span>: <span class="number">320px</span>;</span><br><span class="line">            <span class="attribute">display</span>: block;</span><br><span class="line">            <span class="attribute">margin-top</span>: <span class="number">10px</span>;</span><br><span class="line">            ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-class">.box</span> &#123;</span><br><span class="line">            <span class="attribute">display</span>: flex;</span><br><span class="line">            <span class="attribute">flex-direction</span>: column;</span><br><span class="line">            <span class="attribute">align-items</span>: center;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>js部分</strong></p>
+<p>至此，我们很容易的想到，如果要实现图片的懒加载，我们只需要监听滚动事件，当触发某个条件时，我们就把img标签的src属性值替换为data-src的值，这样就能加载图片了。</p>
+<p>那么，这个条件是什么呢？</p>
+<p>同样用一张图来说明：</p>
+<p><a href="https://sbimg.cn/image/pgKPd" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/19/-2020-05-19-233144.png" alt="-2020-05-19-233144.png"></a></p>
+<p>其中offsetTop、halfHeight、clientHeight都不会变，只有scrollTop会变</p>
+<p>故当<strong>offsetTop + halfHeight &lt; scrollTop + clientHeight</strong>时，加载图片。</p>
+<p><strong>以下是完整代码</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取所有的img节点</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// 将伪数组转化为数组</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 图片高度的一半</span></span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="comment">// 临界条件</span></span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            <span class="comment">// 替换src</span></span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>至此，基本完成了图片的懒加载。</p>
+<h2 id="防抖与节流"><a href="#防抖与节流" class="headerlink" title="防抖与节流"></a>防抖与节流</h2><blockquote>
+<p> 在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。</p>
+<p>一般可以用防抖和节流来解决这个问题。</p>
+</blockquote>
+<p><strong>防抖（debounce）</strong></p>
+<p><strong>所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间，用定时器实现。</strong></p>
+<p>下面是具体的实现，注意看我的注释。闭包是为了保留timer这个状态，而apply的作用在注释中有写到，可以仔细去品味一下。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 闭包</span></span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="comment">// !!!!很重要</span></span><br><span class="line">    <span class="comment">// 这个函数是事件对象调用的函数，事件会给这个函数一个参数e 下面可以用arguments拿到</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            clearInterval(timer)</span><br><span class="line">        &#125;</span><br><span class="line">        timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 由于是箭头函数，这个this和arguments是从上面继承下来的</span></span><br><span class="line">            <span class="comment">// 用apply是为了让 debounce 函数最终返回的函数 this 指向不变以及依旧能接受到 e 参数。</span></span><br><span class="line">            <span class="comment">// 这个arguments就是 e</span></span><br><span class="line">            fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            timer = <span class="literal">null</span></span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>节流（throttle）</strong></p>
+<p><strong>所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数。</strong></p>
+<p>懂了防抖，节流也会相对容易理解。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 节流</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">throttle</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> flag = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!flag) <span class="keyword">return</span></span><br><span class="line">        flag = <span class="literal">false</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            func.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            flag = <span class="literal">true</span></span><br><span class="line">        &#125;, wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="图片懒加载的优化"><a href="#图片懒加载的优化" class="headerlink" title="图片懒加载的优化"></a>图片懒加载的优化</h2><p>上面我们实现的懒加载，是依靠监听滚动条。当我们滚动时，会频繁的触发计算，是否可以优化，让它少触发几次？那我们是应该用防抖还是节流呢？</p>
+<p>想一下，如果用防抖，会导致一直触发事件，一直重置定时器，是不是有可能一直加载不出图片？</p>
+<p>而用节流，无论你在这段时间里触发多少次，过了这段时间我一定会执行一次，这是不是就满足了我们的需求！</p>
+<p>注意书写形式</p>
+<p><strong>完整代码</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 滚动条用节流比较好</span></span><br><span class="line"><span class="built_in">window</span>.onscroll = throttle(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// console.log(img)</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>参考：<a href="https://www.jianshu.com/p/c8b86b09daf0" target="_blank" rel="noopener">https://www.jianshu.com/p/c8b86b09daf0</a></p>
+</blockquote>
+]]></content>
+      <tags>
+        <tag>图片懒加载 节流 防抖</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何求解async await promise setTimeout的顺序？</title>
+    <url>/2020/05/09/%E5%A6%82%E4%BD%95%E6%B1%82%E8%A7%A3async-await-promise-setTimeout%E7%9A%84%E9%A1%BA%E5%BA%8F%EF%BC%9F/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前端笔试题中常常有一种题，给定一定代码，让笔试者写这段代码的输出。一般这段代码，尝尝糅合了各种异步操作，比如async、await、promise、setTimeout，常常令人混淆。与此同时，由于node环境与浏览器环境执行这些异步操作的策略不同，也会有一些差异。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><strong>重要概念：</strong></p>
+<ul>
+<li>首先我们要知道Javascript是<strong>单线程</strong>的</li>
+<li>Javascript里的代码可以分为<strong>同步任务</strong>与<strong>异步任务</strong></li>
+<li>同步任务会在<strong>主线程</strong>上执行。是在栈中执行，先进后出。</li>
+<li>而异步任务会被放置到主线程之外的<strong>任务队列</strong>，先进先出</li>
+<li>当主线程上的同步任务执行完成后，会读取任务队列的异步任务</li>
+</ul>
+<p><strong>宏任务与微任务</strong></p>
+<p>上面讲到异步任务会在任务队列中执行。而执行异步代码的时候会分为两个队列，宏任务队列与微任务队列。</p>
+<p>宏任务包括：</p>
+<ul>
+<li>一开始执行的整段的代码（script代码）</li>
+<li>setTimeout、setInterval、postMessage等</li>
+</ul>
+<p>微任务包括：</p>
+<ul>
+<li><p>Promise.then后面的代码</p>
+</li>
+<li><p>await后面的代码（指的是 await func() 下一行开始的代码）</p>
+</li>
+<li><p>process.nextTick（node中的）</p>
+<a id="more"></a>
+
+</li>
+</ul>
+<h2 id="浏览器与Node中的事件轮询策略"><a href="#浏览器与Node中的事件轮询策略" class="headerlink" title="浏览器与Node中的事件轮询策略"></a>浏览器与Node中的事件轮询策略</h2><ul>
+<li><p>对于<strong>浏览器</strong>来说，同步代码在栈中执行完毕后，会<strong>先去执行微任务队列</strong>，将微任务队列<strong>执行完</strong>后，<strong>再去执行宏任务队列</strong>。当每个宏任务被执行完后，准备执行下一个宏任务时，会检查这个执行完的宏任务是否产生了新的微任务。如果产生了新的微任务，则先去清空微任务队列，再执行下一个宏任务。依次轮循，直到清空整个异步队列。</p>
+</li>
+<li><p>对于<strong>Node</strong>来说。同样会现在栈中执行同步代码，不同的是Node有自己的多个处理不同问题的阶段和对应的队列，整个事件轮询机制是Libuv库实现的。与浏览器最大的不同是Node中有<strong>多个队列，分别执行不同操作</strong>。在每次<strong>队列切换</strong>时，都会区<strong>清空一次微任务队列</strong>。</p>
+<p><a href="https://sbimg.cn/image/pgW14" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/19/-2020-05-19-233408.png" alt="-2020-05-19-233408.png"></a></p>
+</li>
+</ul>
+<p><strong>总结</strong>：Node会在队列切换时清空微任务队列，意思是这个队列可能会产生很多微任务，然而也要等这个队列执行完后再去清空这些微任务。然而浏览器会再产生微任务后，就去执行微任务，然后再执行下一个宏任务。</p>
+<p><strong>举例</strong>：看如下代码</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"setTimeout1"</span>);</span><br><span class="line">    <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"Promise1"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"setTimeout2"</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>对于Node来说</p>
+<p>1、将整段代码看作宏任务，解析时将两个setTimeout放入timers队列，而console.log(1)为同步任务，会输出1</p>
+<p>2、此时检查微任务队列，发现微任务队列为空，切换到下一个队列</p>
+<p>3、进入了timers队列，解析第一个setTimeout，发现有 console.log(“setTimeout1”)，输出setTimeout1。</p>
+<p>4、发现有Promise.then，将里面的内容放入微任务队列</p>
+<p><strong>5、解析第二个setTimeout队列，发现有console.log(“setTimeout2”);，输出setTimeout2</strong></p>
+<p><strong>6、timers队列解析完毕，即将队列切换，检查微任务队列，发现有Promise.then，输出Promise1。</strong></p>
+<p>对于浏览器来说</p>
+<p>1、将整段代码看作宏任务，解析时将两个setTimeout放入宏任务队列，而console.log(1)为同步任务，会输出1</p>
+<p>2、此时微任务队列为空，进入宏任务队列</p>
+<p>3、解析第一个setTimeout，发现有发现有 console.log(“setTimeout1”)，输出setTimeout1。</p>
+<p>4、发现有Promise.then，将里面的内容放入微任务队列</p>
+<p><strong>5、因为产生了新的微任务，故执行完上一个宏任务后，立马清空微任务，输出Promise1</strong></p>
+<p><strong>6、微任务执行完毕，继续执行第二个setTimeout，输出setTimeout2</strong></p>
+<h2 id="综合题"><a href="#综合题" class="headerlink" title="综合题"></a>综合题</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//请写出输出内容</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">async1</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async1 start'</span>);</span><br><span class="line">    <span class="keyword">await</span> async2();</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async1 end'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">async2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async2'</span>);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'script start'</span>);</span><br><span class="line"> </span><br><span class="line">setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'setTimeout'</span>);</span><br><span class="line">&#125;, <span class="number">0</span>)</span><br><span class="line"> </span><br><span class="line">async1();</span><br><span class="line"> </span><br><span class="line"><span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'promise1'</span>);</span><br><span class="line">    resolve();</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'promise2'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'script end'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*浏览器中</span></span><br><span class="line"><span class="comment">script start</span></span><br><span class="line"><span class="comment">async1 start</span></span><br><span class="line"><span class="comment">async2</span></span><br><span class="line"><span class="comment">promise1</span></span><br><span class="line"><span class="comment">script end</span></span><br><span class="line"><span class="comment">async1 end</span></span><br><span class="line"><span class="comment">promise2</span></span><br><span class="line"><span class="comment">setTimeout</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>这段代码加了几乎所有”难点”难点</p>
+<p><strong>注意：遇到 await 会跳出当前函数，并让出线程，再将await后面的代码放到 微任务（microtask）队列中</strong>。</p>
+<p>执行过程为</p>
+<p>1、同步执行, 输出“script start”。</p>
+<p>2、遇到setTimeout，将里面代码放到宏任务队列。</p>
+<p>3、继续往下，输出 “async1 start”，然后执行 async2函数，输出 “async2”。</p>
+<p>4、async2执行完毕，<strong>将await async2 后面的代码（console.log(‘async1 end’);）加入到 微任务队列</strong></p>
+<p>5、aysnc1()流程走完了，接下来进到Promise，同步输出’promise1’</p>
+<p>6、遇到 <strong>promise.then，加入到微任务队列</strong></p>
+<p>7、同步输出script end</p>
+<p>8、当前宏任务执行完毕，查看微任务队列，按照先进先出原则</p>
+<p>9、依次输出’async1 end’ “promise2”</p>
+<p>10、执行下一个宏任务，里面只有一个setTimeout，所以最后输出setTimeout</p>
+<p><strong>同步执行的：[script start] [async1 start] [async2] [promise1] [script end]</strong></p>
+<p><strong>微任务队列：[async1 end] [ promise2 ]</strong></p>
+<p><strong>宏任务队列：[setTimeout]</strong></p>
+<blockquote>
+<p>参考</p>
+<p><a href="https://www.cnblogs.com/ly0612/p/setTimeout-promise-async-await-js-JavaScript.html" target="_blank" rel="noopener">https://www.cnblogs.com/ly0612/p/setTimeout-promise-async-await-js-JavaScript.html</a></p>
+<p><a href="https://www.jianshu.com/p/c620ece29586" target="_blank" rel="noopener">https://www.jianshu.com/p/c620ece29586</a></p>
+</blockquote>
+]]></content>
+      <tags>
+        <tag>异步</tag>
       </tags>
   </entry>
   <entry>
@@ -320,53 +594,6 @@
 <p><strong>promise+await方案</strong></p>
 <p>await是让出线程的标志，并且会将从下一开始的所有操作都加入到微任务队列去。</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> sleep1 = <span class="function"><span class="params">time</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> setTimeout(resolve, time))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">await</span> sleep1(<span class="number">1000</span>)</span><br><span class="line">        <span class="built_in">console</span>.log(i)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'done'</span>)</span><br><span class="line">&#125;</span><br><span class="line">f()</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>JavaScript</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>typeof + instanceof实现</title>
-    <url>/2020/05/18/typeof-instanceof%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>typeof和instanceof常用来判断一个变量是什么类型的。本篇会说明两者的区别并手写一个instanceof</p>
-<h2 id="typeof"><a href="#typeof" class="headerlink" title="typeof"></a>typeof</h2><ul>
-<li><p>对于typeof来说，只返回以下几个结果：<code>number</code>、<code>boolean</code>、<code>string</code>、<code>function</code>、<code>object</code>、<code>undefined</code></p>
-</li>
-<li><p>注意<code>function</code>这种引用类型是会返回<code>function</code>的，并不会返回<code>Object</code></p>
-</li>
-<li><p>对于其他的引用类型参数，时终返回<code>object</code>。<strong>这一点导致无法判断准确的类型</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="keyword">typeof</span> arr <span class="comment">// "object"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> date = <span class="keyword">new</span> <span class="built_in">Date</span>()</span><br><span class="line"><span class="keyword">typeof</span> date <span class="comment">// "object"</span></span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-</li>
-<li><p>有一个很特殊的值，null</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typeof</span> <span class="literal">null</span> <span class="comment">// "object"</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<ol>
-<li>null不是一个空引用, 而是一个原始值, 参考<a href="https://link.zhihu.com/?target=http%3A//lzw.me/pages/ecmascript/%2320">ECMAScript5.1中文版</a> 4.3.11节; 它只是期望此处将引用一个对象, 注意是”期望”, 参考 <a href="https://link.zhihu.com/?target=https%3A//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null">null - JavaScript</a>.</li>
-<li>typeof null结果是object, 这是个历史遗留bug, 参考 <a href="https://link.zhihu.com/?target=https%3A//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof">typeof - JavaScript</a></li>
-<li>在ECMA6中, 曾经有提案为历史平凡, 将type null的值纠正为null, 但最后提案被拒了. 理由是历史遗留代码太多, 不想得罪人, 不如继续将错就错当和事老, 参考 <a href="https://link.zhihu.com/?target=http%3A//wiki.ecmascript.org/doku.php%3Fid%3Dharmony%3atypeof_null">harmony:typeof_null [ES Wiki]</a></li>
-</ol>
-</blockquote>
-</li>
-<li><p>typeof 来获取一个变量是否存在，如 if(typeof a!=”undefined”){alert(“ok”)}，而<strong>不要</strong>去使用 if(a), 因为如果 a 不存在（未声明）则会出错。</p>
-<h2 id="instanceof"><a href="#instanceof" class="headerlink" title="instanceof"></a>instanceof</h2></li>
-<li><p>instanceof是用来判断一个变量是否属于某个对象的实例</p>
-</li>
-<li><p>官方的话：该运算符用来测试一个对象在其原型链中是否存在一个构造函数prototype属性</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> <span class="built_in">Array</span>();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(a <span class="keyword">instanceof</span> <span class="built_in">Array</span>);    <span class="comment">// 会返回 true</span></span><br><span class="line"><span class="built_in">console</span>.log(a <span class="keyword">instanceof</span> <span class="built_in">Object</span>);    <span class="comment">// 也会返回 true</span></span><br><span class="line"></span><br><span class="line">因为<span class="built_in">Array</span>是object的<span class="string">'子类'</span>，他们都在a的原型链上</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>这个判断比较准确哦！</p>
-</li>
-</ul>
-<h2 id="手写instanceof"><a href="#手写instanceof" class="headerlink" title="手写instanceof"></a>手写instanceof</h2><p>核心就是，获得第一个操作数的原型对象，如果与第二个操作数的原型对象不相等，则继续找原型对象的原型</p>
-<p>递归版本：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myInstanceof</span>(<span class="params">A,B</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">const</span> proto = <span class="built_in">Object</span>.getPrototypeOf(A)</span><br><span class="line">    <span class="keyword">const</span> prototype = B.prototype</span><br><span class="line">    <span class="keyword">if</span>(proto === <span class="literal">null</span> || prototype ===<span class="literal">undefined</span> )&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(proto === prototype)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">// 递归调用</span></span><br><span class="line">        myInstanceof(<span class="built_in">Object</span>.getPrototypeof(proto),B)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>循环版本：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myInstanceof</span>(<span class="params">A,B</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">const</span> proto = <span class="built_in">Object</span>.getPrototypeOf(A)</span><br><span class="line">    <span class="keyword">const</span> prototype = B.prototype</span><br><span class="line">    <span class="comment">// 为什么是null呢？因为最顶层Object.prototype.__proto__就是null</span></span><br><span class="line">    <span class="keyword">while</span>(proto !==<span class="literal">null</span> &amp;&amp; prototype !==<span class="literal">undefined</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(proto === prototype)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            proto = <span class="built_in">Object</span>.getPrototypeof(proto)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <tags>
@@ -525,100 +752,6 @@
 ]]></content>
       <tags>
         <tag>瀑布流 JS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>开篇！初心与目标</title>
-    <url>/2020/05/08/%E5%BC%80%E7%AF%87%EF%BC%81%E5%88%9D%E5%BF%83%E4%B8%8E%E7%9B%AE%E6%A0%87/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>建立此博客的目的是为了记录一些平常学习中的所学所感。</p>
-<h1 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h1><p>每天学习一点，若干天会推送一篇合集。</p>
-<h1 id="阶段"><a href="#阶段" class="headerlink" title="阶段"></a>阶段</h1><p>现阶段双非一本计算机系，正往前端的路上使劲探索……</p>
-]]></content>
-      <tags>
-        <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何求解async await promise setTimeout的顺序？</title>
-    <url>/2020/05/09/%E5%A6%82%E4%BD%95%E6%B1%82%E8%A7%A3async-await-promise-setTimeout%E7%9A%84%E9%A1%BA%E5%BA%8F%EF%BC%9F/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前端笔试题中常常有一种题，给定一定代码，让笔试者写这段代码的输出。一般这段代码，尝尝糅合了各种异步操作，比如async、await、promise、setTimeout，常常令人混淆。与此同时，由于node环境与浏览器环境执行这些异步操作的策略不同，也会有一些差异。</p>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p><strong>重要概念：</strong></p>
-<ul>
-<li>首先我们要知道Javascript是<strong>单线程</strong>的</li>
-<li>Javascript里的代码可以分为<strong>同步任务</strong>与<strong>异步任务</strong></li>
-<li>同步任务会在<strong>主线程</strong>上执行。是在栈中执行，先进后出。</li>
-<li>而异步任务会被放置到主线程之外的<strong>任务队列</strong>，先进先出</li>
-<li>当主线程上的同步任务执行完成后，会读取任务队列的异步任务</li>
-</ul>
-<p><strong>宏任务与微任务</strong></p>
-<p>上面讲到异步任务会在任务队列中执行。而执行异步代码的时候会分为两个队列，宏任务队列与微任务队列。</p>
-<p>宏任务包括：</p>
-<ul>
-<li>一开始执行的整段的代码（script代码）</li>
-<li>setTimeout、setInterval、postMessage等</li>
-</ul>
-<p>微任务包括：</p>
-<ul>
-<li><p>Promise.then后面的代码</p>
-</li>
-<li><p>await后面的代码（指的是 await func() 下一行开始的代码）</p>
-</li>
-<li><p>process.nextTick（node中的）</p>
-<a id="more"></a>
-
-</li>
-</ul>
-<h2 id="浏览器与Node中的事件轮询策略"><a href="#浏览器与Node中的事件轮询策略" class="headerlink" title="浏览器与Node中的事件轮询策略"></a>浏览器与Node中的事件轮询策略</h2><ul>
-<li><p>对于<strong>浏览器</strong>来说，同步代码在栈中执行完毕后，会<strong>先去执行微任务队列</strong>，将微任务队列<strong>执行完</strong>后，<strong>再去执行宏任务队列</strong>。当每个宏任务被执行完后，准备执行下一个宏任务时，会检查这个执行完的宏任务是否产生了新的微任务。如果产生了新的微任务，则先去清空微任务队列，再执行下一个宏任务。依次轮循，直到清空整个异步队列。</p>
-</li>
-<li><p>对于<strong>Node</strong>来说。同样会现在栈中执行同步代码，不同的是Node有自己的多个处理不同问题的阶段和对应的队列，整个事件轮询机制是Libuv库实现的。与浏览器最大的不同是Node中有<strong>多个队列，分别执行不同操作</strong>。在每次<strong>队列切换</strong>时，都会区<strong>清空一次微任务队列</strong>。</p>
-<p><a href="https://sbimg.cn/image/pgW14" target="_blank" rel="noopener"><img src="https://wx1.sbimg.cn/2020/05/19/-2020-05-19-233408.png" alt="-2020-05-19-233408.png"></a></p>
-</li>
-</ul>
-<p><strong>总结</strong>：Node会在队列切换时清空微任务队列，意思是这个队列可能会产生很多微任务，然而也要等这个队列执行完后再去清空这些微任务。然而浏览器会再产生微任务后，就去执行微任务，然后再执行下一个宏任务。</p>
-<p><strong>举例</strong>：看如下代码</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"setTimeout1"</span>);</span><br><span class="line">    <span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">"Promise1"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"setTimeout2"</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-
-<p>对于Node来说</p>
-<p>1、将整段代码看作宏任务，解析时将两个setTimeout放入timers队列，而console.log(1)为同步任务，会输出1</p>
-<p>2、此时检查微任务队列，发现微任务队列为空，切换到下一个队列</p>
-<p>3、进入了timers队列，解析第一个setTimeout，发现有 console.log(“setTimeout1”)，输出setTimeout1。</p>
-<p>4、发现有Promise.then，将里面的内容放入微任务队列</p>
-<p><strong>5、解析第二个setTimeout队列，发现有console.log(“setTimeout2”);，输出setTimeout2</strong></p>
-<p><strong>6、timers队列解析完毕，即将队列切换，检查微任务队列，发现有Promise.then，输出Promise1。</strong></p>
-<p>对于浏览器来说</p>
-<p>1、将整段代码看作宏任务，解析时将两个setTimeout放入宏任务队列，而console.log(1)为同步任务，会输出1</p>
-<p>2、此时微任务队列为空，进入宏任务队列</p>
-<p>3、解析第一个setTimeout，发现有发现有 console.log(“setTimeout1”)，输出setTimeout1。</p>
-<p>4、发现有Promise.then，将里面的内容放入微任务队列</p>
-<p><strong>5、因为产生了新的微任务，故执行完上一个宏任务后，立马清空微任务，输出Promise1</strong></p>
-<p><strong>6、微任务执行完毕，继续执行第二个setTimeout，输出setTimeout2</strong></p>
-<h2 id="综合题"><a href="#综合题" class="headerlink" title="综合题"></a>综合题</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//请写出输出内容</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">async1</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async1 start'</span>);</span><br><span class="line">    <span class="keyword">await</span> async2();</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async1 end'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">async2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'async2'</span>);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'script start'</span>);</span><br><span class="line"> </span><br><span class="line">setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'setTimeout'</span>);</span><br><span class="line">&#125;, <span class="number">0</span>)</span><br><span class="line"> </span><br><span class="line">async1();</span><br><span class="line"> </span><br><span class="line"><span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span>(<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'promise1'</span>);</span><br><span class="line">    resolve();</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'promise2'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'script end'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*浏览器中</span></span><br><span class="line"><span class="comment">script start</span></span><br><span class="line"><span class="comment">async1 start</span></span><br><span class="line"><span class="comment">async2</span></span><br><span class="line"><span class="comment">promise1</span></span><br><span class="line"><span class="comment">script end</span></span><br><span class="line"><span class="comment">async1 end</span></span><br><span class="line"><span class="comment">promise2</span></span><br><span class="line"><span class="comment">setTimeout</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
-
-<p>这段代码加了几乎所有”难点”难点</p>
-<p><strong>注意：遇到 await 会跳出当前函数，并让出线程，再将await后面的代码放到 微任务（microtask）队列中</strong>。</p>
-<p>执行过程为</p>
-<p>1、同步执行, 输出“script start”。</p>
-<p>2、遇到setTimeout，将里面代码放到宏任务队列。</p>
-<p>3、继续往下，输出 “async1 start”，然后执行 async2函数，输出 “async2”。</p>
-<p>4、async2执行完毕，<strong>将await async2 后面的代码（console.log(‘async1 end’);）加入到 微任务队列</strong></p>
-<p>5、aysnc1()流程走完了，接下来进到Promise，同步输出’promise1’</p>
-<p>6、遇到 <strong>promise.then，加入到微任务队列</strong></p>
-<p>7、同步输出script end</p>
-<p>8、当前宏任务执行完毕，查看微任务队列，按照先进先出原则</p>
-<p>9、依次输出’async1 end’ “promise2”</p>
-<p>10、执行下一个宏任务，里面只有一个setTimeout，所以最后输出setTimeout</p>
-<p><strong>同步执行的：[script start] [async1 start] [async2] [promise1] [script end]</strong></p>
-<p><strong>微任务队列：[async1 end] [ promise2 ]</strong></p>
-<p><strong>宏任务队列：[setTimeout]</strong></p>
-<blockquote>
-<p>参考</p>
-<p><a href="https://www.cnblogs.com/ly0612/p/setTimeout-promise-async-await-js-JavaScript.html" target="_blank" rel="noopener">https://www.cnblogs.com/ly0612/p/setTimeout-promise-async-await-js-JavaScript.html</a></p>
-<p><a href="https://www.jianshu.com/p/c620ece29586" target="_blank" rel="noopener">https://www.jianshu.com/p/c620ece29586</a></p>
-</blockquote>
-]]></content>
-      <tags>
-        <tag>异步</tag>
       </tags>
   </entry>
   <entry>
@@ -909,139 +1042,6 @@
 ]]></content>
       <tags>
         <tag>JavaScript</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>品字布局与圣杯布局</title>
-    <url>/2020/05/20/%E5%93%81%E5%AD%97%E5%B8%83%E5%B1%80%E4%B8%8E%E5%9C%A3%E6%9D%AF%E5%B8%83%E5%B1%80/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文将通过css flex来进行常见的布局（品字型布局与圣杯布局）</p>
-<h2 id="品字布局"><a href="#品字布局" class="headerlink" title="品字布局"></a>品字布局</h2><p>效果如下：</p>
-<p><img src="https://wx2.sbimg.cn/2020/05/20/-2020-05-20-233311.png" alt="-2020-05-20-233311.png"></p>
-<p>红色部分的是header，高度为定高（80px），模拟的是顶部导航条</p>
-<p>绿色部分的是left，宽度可以定死也可以自适应，模拟的是左侧导航条。</p>
-<p>黄色部分的是right，宽度可以定死也可以自适应，模拟的是主要内容区域。</p>
-<a id="more"></a>
-
-<p><strong>首先定义HTML结构</strong></p>
-<p>把整个页面分为上下两个结构，分别为header和down</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"header"</span>&gt;</span>header<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"down"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"left"</span>&gt;</span>left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"right"</span>&gt;</span>right<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>定义CSS</strong></p>
-<p>首先是基础的设置，清除所有的margin和padding</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">* &#123;</span><br><span class="line">    <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">padding</span>: <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由于最外层的容器是body，我门需要让他占满整一个页面，于是用vh和vw进行设置。</p>
-<p>height：100vh表示高度占可视窗口的100%，vw同理</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此时，我们已经将整个页面结构分为上（header）下（down）两部分。我们为其设置flex布局，并将flex的方向改为colunm，这样就能形成上下结构。</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">    <span class="attribute">flex-direction</span>: column;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由于header需要定高，于是为header设置高度</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.header</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: red;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>接下来我们关注下面的结构：我们需要让left和right在一行里显示，于是我们再次用flex</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.down</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此时，left和right已经并为一行。</p>
-<p>但是，下半部分并没有撑满剩余的高度，于是我们使用<strong>flex:1</strong>属性让其自适应。</p>
-<p>flex:1是flex-growth:1的缩写。</p>
-<blockquote>
-<p>flex-growth规定项目将相对于其他灵活的项目进行扩展的量。默认值是 0</p>
-</blockquote>
-<p>我们可以这样理解，在上下结构中，除了上下两个div所占的高度外，剩下的空白区域的总高度是1</p>
-<p>那么，我们将这个1全部让给下半部分，于是：</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.down</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: flex;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此时已经可以看到，撑满了整个高度。</p>
-<p>但此时，left和right并没有占满整行，我们利用flex的思想：</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.left</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: green;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.right</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: yellow;</span><br><span class="line">    <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这样，left和right就能平分宽度了</p>
-<blockquote>
-<p>当然，你也可以给left或者right的其中一个设定宽度，剩下的设置为flex:1</p>
-<p>也可以按比例来，比如一个flex设为2，一个设为1，那么他们的比例就是2：1</p>
-</blockquote>
-<p>完成！！</p>
-<h2 id="圣杯布局"><a href="#圣杯布局" class="headerlink" title="圣杯布局"></a>圣杯布局</h2><p>效果如下：</p>
-<p><a href="https://sbimg.cn/image/pusPJ" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/20/-2020-05-20-233249.png" alt="-2020-05-20-233249.png"></a></p>
-<p>圣杯布局是品字布局的加强版：</p>
-<p>其中，header和footer定高</p>
-<p>left main right 高度自适应</p>
-<p>left 和 right 定宽</p>
-<p>main宽度自适应。</p>
-<p>由于原理相同，这边只放代码，可以参照！</p>
-<p><strong>HTML结构</strong></p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 圣杯布局 --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- header与footer定高 left main right高度自适应 --&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- left和right定宽 main宽度自适应 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"header"</span>&gt;</span>header<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"middle"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"left"</span>&gt;</span>left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"main"</span>&gt;</span>main<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"right"</span>&gt;</span>right<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"footer"</span>&gt;</span>footer<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>CSS样式</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">    * &#123;</span><br><span class="line">        <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">padding</span>: <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-tag">body</span> &#123;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">100vw</span>;</span><br><span class="line">        <span class="attribute">display</span>: flex;</span><br><span class="line">        <span class="attribute">flex-direction</span>: column;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.header</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: red;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.middle</span> &#123;</span><br><span class="line">        <span class="attribute">display</span>: flex;</span><br><span class="line">        <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.left</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: yellow;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">200px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.main</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: purple;</span><br><span class="line">        <span class="attribute">flex</span>: <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.right</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: green;</span><br><span class="line">        <span class="attribute">width</span>: <span class="number">200px</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="selector-class">.footer</span> &#123;</span><br><span class="line">        <span class="attribute">background-color</span>: blue;</span><br><span class="line">        <span class="attribute">height</span>: <span class="number">80px</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>CSS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>图片懒加载与防抖节流</title>
-    <url>/2020/05/10/%E5%9B%BE%E7%89%87%E6%87%92%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%8A%82%E6%B5%81/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>图片懒加载是一种比较常见的优化方式，其效果是当用户拉动滚动条到图片位置时，图片才开始加载（未加载之前会用一张默认图片代替），这样可以有效地防止所有图片集中请求加载，造成拥堵。</p>
-<p>下图是建议的效果，当拉动滚动条到当前加载的图片的最后一张时，会发现下一张还未加载。</p>
-<p>然而继续往下拉动后，这张图片会进行加载</p>
-<p><img src="https://wx1.sbimg.cn/2020/05/19/-2020-05-19-233124.png" alt="-2020-05-19-233124.png"></p>
-<a id="more"></a>
-
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>其实主要的思想与我之前的文章<a href="https://www.pigkeeper.xyz/2020/05/09/瀑布流效果/" target="_blank" rel="noopener">纯JS瀑布流效果与动态加载</a>里的动态加载非常的相似，都是计算一个滚动的阈值，达到这个阈值后便进行图片的加载。</p>
-<p><strong>首先我们搭建简单的html结构</strong></p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"box"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"./default.png"</span> <span class="attr">alt</span>=<span class="string">""</span> <span class="attr">data-src</span>=<span class="string">"./images/0.jpg"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>可以注意到，img的src属性都是”./default.png”，这是一张默认图，也就是上图的蓝色图片，而图片真正的src存在data-src中。data-src是一个自定义的数据，当我们获取到某个img的dom节点对象时，我们可以通过一些语句来获得data-src的值，方法是：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">console</span>.log(img.dataset.src)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会输出data-src的内容</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>其次是css</strong></p>
-<p>这里只是限定图片的大小，并居中显示</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">        <span class="selector-tag">img</span> &#123;</span><br><span class="line">            <span class="attribute">width</span>: <span class="number">230px</span>;</span><br><span class="line">            <span class="attribute">height</span>: <span class="number">320px</span>;</span><br><span class="line">            <span class="attribute">display</span>: block;</span><br><span class="line">            <span class="attribute">margin-top</span>: <span class="number">10px</span>;</span><br><span class="line">            ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="selector-class">.box</span> &#123;</span><br><span class="line">            <span class="attribute">display</span>: flex;</span><br><span class="line">            <span class="attribute">flex-direction</span>: column;</span><br><span class="line">            <span class="attribute">align-items</span>: center;</span><br><span class="line">        &#125;</span><br><span class="line">    &lt;/style&gt;</span><br></pre></td></tr></table></figure>
-
-<p><strong>js部分</strong></p>
-<p>至此，我们很容易的想到，如果要实现图片的懒加载，我们只需要监听滚动事件，当触发某个条件时，我们就把img标签的src属性值替换为data-src的值，这样就能加载图片了。</p>
-<p>那么，这个条件是什么呢？</p>
-<p>同样用一张图来说明：</p>
-<p><a href="https://sbimg.cn/image/pgKPd" target="_blank" rel="noopener"><img src="https://wx2.sbimg.cn/2020/05/19/-2020-05-19-233144.png" alt="-2020-05-19-233144.png"></a></p>
-<p>其中offsetTop、halfHeight、clientHeight都不会变，只有scrollTop会变</p>
-<p>故当<strong>offsetTop + halfHeight &lt; scrollTop + clientHeight</strong>时，加载图片。</p>
-<p><strong>以下是完整代码</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">window</span>.onscroll = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取所有的img节点</span></span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// 将伪数组转化为数组</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 图片高度的一半</span></span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="comment">// 临界条件</span></span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            <span class="comment">// 替换src</span></span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
-
-<p>至此，基本完成了图片的懒加载。</p>
-<h2 id="防抖与节流"><a href="#防抖与节流" class="headerlink" title="防抖与节流"></a>防抖与节流</h2><blockquote>
-<p> 在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。</p>
-<p>一般可以用防抖和节流来解决这个问题。</p>
-</blockquote>
-<p><strong>防抖（debounce）</strong></p>
-<p><strong>所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间，用定时器实现。</strong></p>
-<p>下面是具体的实现，注意看我的注释。闭包是为了保留timer这个状态，而apply的作用在注释中有写到，可以仔细去品味一下。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 闭包</span></span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="comment">// !!!!很重要</span></span><br><span class="line">    <span class="comment">// 这个函数是事件对象调用的函数，事件会给这个函数一个参数e 下面可以用arguments拿到</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            clearInterval(timer)</span><br><span class="line">        &#125;</span><br><span class="line">        timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 由于是箭头函数，这个this和arguments是从上面继承下来的</span></span><br><span class="line">            <span class="comment">// 用apply是为了让 debounce 函数最终返回的函数 this 指向不变以及依旧能接受到 e 参数。</span></span><br><span class="line">            <span class="comment">// 这个arguments就是 e</span></span><br><span class="line">            fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            timer = <span class="literal">null</span></span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>节流（throttle）</strong></p>
-<p><strong>所谓节流，就是指连续触发事件但是在 n 秒中只执行一次函数。</strong></p>
-<p>懂了防抖，节流也会相对容易理解。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 节流</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">throttle</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> flag = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!flag) <span class="keyword">return</span></span><br><span class="line">        flag = <span class="literal">false</span></span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            func.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>)</span><br><span class="line">            flag = <span class="literal">true</span></span><br><span class="line">        &#125;, wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="图片懒加载的优化"><a href="#图片懒加载的优化" class="headerlink" title="图片懒加载的优化"></a>图片懒加载的优化</h2><p>上面我们实现的懒加载，是依靠监听滚动条。当我们滚动时，会频繁的触发计算，是否可以优化，让它少触发几次？那我们是应该用防抖还是节流呢？</p>
-<p>想一下，如果用防抖，会导致一直触发事件，一直重置定时器，是不是有可能一直加载不出图片？</p>
-<p>而用节流，无论你在这段时间里触发多少次，过了这段时间我一定会执行一次，这是不是就满足了我们的需求！</p>
-<p>注意书写形式</p>
-<p><strong>完整代码</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 滚动条用节流比较好</span></span><br><span class="line"><span class="built_in">window</span>.onscroll = throttle(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> img = <span class="built_in">document</span>.getElementsByTagName(<span class="string">'img'</span>)</span><br><span class="line">    <span class="comment">// console.log(img)</span></span><br><span class="line">    img = [...img]</span><br><span class="line">    img.forEach(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> halfHeight = <span class="built_in">Math</span>.floor(element.clientHeight / <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">if</span> (element.offsetTop + halfHeight &lt; <span class="built_in">document</span>.documentElement.scrollTop + <span class="built_in">document</span>.documentElement.clientHeight) &#123;</span><br><span class="line">            element.src = element.dataset.src</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p>参考：<a href="https://www.jianshu.com/p/c8b86b09daf0" target="_blank" rel="noopener">https://www.jianshu.com/p/c8b86b09daf0</a></p>
-</blockquote>
-]]></content>
-      <tags>
-        <tag>图片懒加载 节流 防抖</tag>
       </tags>
   </entry>
 </search>
