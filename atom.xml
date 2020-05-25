@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-21T07:07:05.046Z</updated>
+  <updated>2020-05-25T11:20:44.110Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Vue中的插槽</title>
+    <link href="http://yoursite.com/2020/05/25/Vue%E4%B8%AD%E7%9A%84%E6%8F%92%E6%A7%BD/"/>
+    <id>http://yoursite.com/2020/05/25/Vue%E4%B8%AD%E7%9A%84%E6%8F%92%E6%A7%BD/</id>
+    <published>2020-05-25T11:07:21.000Z</published>
+    <updated>2020-05-25T11:20:44.110Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h2 id=&quot;概念&quot;&gt;&lt;a href=&quot;#概念&quot; class=&quot;headerlink&quot; title=&quot;概念&quot;&gt;&lt;/a&gt;概念&lt;/h2&gt;&lt;p&gt;Vue中的插槽可以理解成组件的合成&lt;/p&gt;
+&lt;h2 id=&quot;匿名插槽&quot;&gt;&lt;a href=&quot;#匿名插槽&quot;
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="Vue" scheme="http://yoursite.com/tags/Vue/"/>
+    
+  </entry>
   
   <entry>
     <title>循环输出问题</title>

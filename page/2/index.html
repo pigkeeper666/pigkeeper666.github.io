@@ -76,6 +76,87 @@
     
     
     
+    <article id="post-认清Token的职责" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/"
+    >认清Token的职责</a> 
+</h2>
+ 
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/" class="article-date">
+  <time datetime="2020-05-11T09:26:19.000Z" itemprop="datePublished">2020-05-11</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <h2 id="Session-Cookie"><a href="#Session-Cookie" class="headerlink" title="Session+Cookie"></a>Session+Cookie</h2><p>我们知道，http是无状态的，但是在应用中我们常常需要保留用户的登陆状态，也就是保持会话。</p>
+<p>一般我们采取的方案是cookie+session这一套，具体过程不再赘述，总结几点：</p>
+<p><strong>1、cookie的作用域是domain本身以及domain下的所有子域名。也就是说客户端代码和服务器代码运行在同一台服务器上比较好使用，因为cookie是不能跨域名的！！</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;test1.demo.com:8080 与 http:&#x2F;&#x2F;test2.demo.com:8081 之间共享 cookie</span><br></pre></td></tr></table></figure>
+
+<p>注意：test1.demo.com 是 demo.com的子域名</p>
+<p><strong>2、服务器端session存在哪？内存还是数据库？当存在内存中时，服务器采用了多台机器负载均衡，怎么办？可以共享内存吗？其次万一服务器这边重启了session会消失吧！当存在数据库中，那么当用户量大的时候，数据库的负担会遍大，同时也需要频繁的读写。</strong></p>
+<p><strong>3、可能会遭到CSRF攻击（cookie劫持）</strong></p>
+<p>针对上面三个问题，我们可以想想如何解决：</p>
+<p>1、用token，可以跨域名。</p>
+<p>2、能不能不把session存在服务端，而存在客户端呢？</p>
+<p>3、不使用cookie了，不就能避免CSRF了嘛？</p>
+      
+      <a class="article-more-link" href="/2020/05/11/%E8%AE%A4%E6%B8%85Token%E7%9A%84%E8%81%8C%E8%B4%A3/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Token/" rel="tag">Token</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+  
+  
+
+</article>
+    
     <article id="post-图片懒加载与节流" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
