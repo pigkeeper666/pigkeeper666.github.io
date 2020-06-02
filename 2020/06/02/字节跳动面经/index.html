@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Vue中的插槽 |  养猪大师
+    字节跳动面经 |  养猪大师
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -42,7 +42,7 @@
   <div id="app">
     <main class="content on">
       <section class="outer">
-  <article id="post-Vue中的插槽" class="article article-type-post" itemscope
+  <article id="post-字节跳动面经" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -50,7 +50,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Vue中的插槽
+  字节跳动面经
 </h1>
  
 
@@ -59,8 +59,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/05/25/Vue%E4%B8%AD%E7%9A%84%E6%8F%92%E6%A7%BD/" class="article-date">
-  <time datetime="2020-05-25T11:07:21.000Z" itemprop="datePublished">2020-05-25</time>
+      <a href="/2020/06/02/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8%E9%9D%A2%E7%BB%8F/" class="article-date">
+  <time datetime="2020-06-02T13:20:02.000Z" itemprop="datePublished">2020-06-02</time>
 </a>
       
       
@@ -70,7 +70,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">729</span>
+            <span class="post-count">894</span>
         </span>
     </span>
 
@@ -104,50 +104,108 @@
       
 
       
-      <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>Vue中的插槽可以理解成组件的合成</p>
-<h2 id="匿名插槽"><a href="#匿名插槽" class="headerlink" title="匿名插槽"></a>匿名插槽</h2><p>假设现在创建一个自定义的组件</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tag = &#123;</span><br><span class="line">    template: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;啦啦啦啦&lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;嘿嘿嘿嘿&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    `</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>挂载到vm实例上</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> vm = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">    el: <span class="string">'#example'</span>,</span><br><span class="line">    components: &#123;</span><br><span class="line">        tag1: tag</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>字节面试一共两天。不得不说，效率是真的高！</p>
+<p>一面二面同一天。三面hr同一天。许愿offer！！我把能想起来的尽量写下来！</p>
+</blockquote>
+<h2 id="字节一面"><a href="#字节一面" class="headerlink" title="字节一面"></a>字节一面</h2><p>自我介绍</p>
+<p>项目亮点</p>
+<p>http1.1长连接</p>
+<p>http2.0的新特性</p>
+<p>https握手的具体过程，详细说说</p>
+<p>https哪里体现了非对称哪里对称，为什么不全用非对称。</p>
+<p>sessionStorage和localStorage</p>
+<p>cookie有哪些字段，有哪些用处</p>
+<p>css flex的三个值具体解释一下什么意思</p>
+<p>事件循环</p>
+<p>事件循环代码提问输出，讲讲为什么</p>
 <a id="more"></a>
 
-<p>在html使用该标签</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"example"</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">tag1</span>&gt;</span><span class="tag">&lt;/<span class="name">tag1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>运行，可以看到显示出了两行，啦啦啦啦和嘿嘿嘿嘿。</p>
-<p>此时此刻，如果我们想进一步丰富template模板中展示内容的灵活性，可以借助插槽slot</p>
-<p><strong>需求：我想把第一个div里的啦啦啦啦变为呵呵呵呵</strong></p>
-<p>使用插槽，也就是在自定义组件里加入一对slot标签</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tag = &#123;</span><br><span class="line">    template: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;嘿嘿嘿嘿&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    `</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在HTML中使用它的时候，我们就像标签一样使用</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"example"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tag1</span>&gt;</span></span><br><span class="line">        呵呵呵呵</span><br><span class="line">    <span class="tag">&lt;/<span class="name">tag1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>此时，显示的就是呵呵呵呵 和 嘿嘿嘿嘿。</p>
-<h2 id="具名插槽"><a href="#具名插槽" class="headerlink" title="具名插槽"></a>具名插槽</h2><p><strong>新需求来了：我想把第二行换成嘻嘻嘻嘻</strong></p>
-<p>如果直接把模板的第二行添加slot，那怎么判别slot是填写呵呵呵呵还是嘻嘻嘻嘻呢？</p>
-<p>因此要指定名称，使用具名插槽</p>
-<p>在slot标签里添加name属性</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tag = &#123;</span><br><span class="line">    template: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;&lt;slot name="first"&gt;&lt;/slot&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;&lt;slot name="second"&gt;&lt;/slot&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    `</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在使用的时候指明slot名字</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"example"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tag1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">"first"</span>&gt;</span>呵呵<span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">"second"</span>&gt;</span>嘻嘻<span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tag1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>如此，就能指定对应的插槽了。</p>
-<h2 id="作用域插槽"><a href="#作用域插槽" class="headerlink" title="作用域插槽"></a>作用域插槽</h2><p><strong>当父组件想要访问子组件内的内部数据，就需要用作用域插槽</strong></p>
-<p>自定义子组件：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tag = &#123;</span><br><span class="line">    data() &#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            msg: <span class="string">'child'</span>,</span><br><span class="line">            msg2: <span class="string">'child2'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    template: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;&lt;slot name="first"&gt;&lt;/slot&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;&lt;slot name="second"&gt;&lt;/slot&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    `</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此时，如果子组件想暴露自己data函数里的数据，给父组件用，怎么弄呢？</p>
-<p>将需要暴露的数据用v-bind绑定</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tag = &#123;</span><br><span class="line">    data() &#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            msg: <span class="string">'child'</span>,</span><br><span class="line">            msg2: <span class="string">'child2'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    template: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;&lt;slot name="first" :ddd="msg"&gt;&lt;/slot&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;&lt;slot name="second" :eee="msg2"&gt;&lt;/slot&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    `</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>父组件怎么访问呢？</p>
-<p>添加slot-scope属性，双引号的值自定义，然后就可以引用相应的属性啦！</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"example"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tag1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">"first"</span> <span class="attr">slot-scope</span>=<span class="string">"slotProps"</span>&gt;</span></span><br><span class="line">            &#123;&#123;slotProps.ddd&#125;&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">"second"</span> <span class="attr">slot-scope</span>=<span class="string">"slotProps"</span>&gt;</span></span><br><span class="line">            &#123;&#123;slotProps.eee&#125;&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tag1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+<p><strong>代码题：</strong></p>
+<p>垂直居中的若干种方法（能不能写一个能兼容以前的版本）</p>
+<p>三栏布局，两边固定中间自适应，多写几种方法</p>
+<p>手写一个类似解析虚拟DOM的render函数</p>
+<p>反问环节</p>
+<p>问是否能够继续面试</p>
+<h2 id="字节二面"><a href="#字节二面" class="headerlink" title="字节二面"></a>字节二面</h2><p>自我介绍</p>
+<p>继续怼三栏布局，flex又问了一遍</p>
+<p>重排和重绘，什么时候会重排？只有增添DOM，改宽高才会重排吗？下拉滚动条会吗？</p>
+<p>事件循环</p>
+<p>事件循环代码提问输出，讲讲为什么</p>
+<blockquote>
+<p>事件循环和flex这么喜欢问诶！</p>
+</blockquote>
+<p>怼项目</p>
+<p>怼项目</p>
+<p>怼项目</p>
+<p>问爬虫</p>
+<p><strong>代码题：</strong></p>
+<p>跳台阶的变种题（动态规划），要求解释dp[0]的含义</p>
+<p>数组去重：一个数组包括各种数据类型的数据，字符串数字NaN这些，要求去重</p>
+<p>反问环节</p>
+<p>约三面，但是leader太忙，于是约到了第二天</p>
+<blockquote>
+<p>等待的时间也太紧张了！！</p>
+</blockquote>
+<h2 id="字节三面"><a href="#字节三面" class="headerlink" title="字节三面"></a>字节三面</h2><blockquote>
+<p>这一面是leader面，问的比较￥#%……#￥%#</p>
+</blockquote>
+<p>自我介绍</p>
+<p>写一个数据库查找语句</p>
+<p>是否自己为数据库进行分表设计，怎么设计的</p>
+<p>如果一个表需要频繁的被CRUD，怎么办</p>
+<p>如果说库很大，怎样才能提高效率</p>
+<p>有学过分布式这些吗？</p>
+<p>索引有深入了解吗？</p>
+<p>node怎么连接数据库的</p>
+<p>有学过JAVA C++这些吗，说一下</p>
+<p>ORM了解吗，说一下</p>
+<p>对负载均衡是怎么理解的</p>
+<blockquote>
+<p>我真的面的是前端吗</p>
+</blockquote>
+<p>TCP与UDP</p>
+<p>从输入url到显示的过程</p>
+<p>着重于问url到后端以后怎么进行处理</p>
+<p>DNS</p>
+<p>Ngnix的配置</p>
+<p>项目是怎么进行部署上线的</p>
+<p>查看进程号的Linux命令是什么</p>
+<blockquote>
+<p>我要炸了</p>
+</blockquote>
+<p>浏览器的缓存措施</p>
+<p>跨域方案</p>
+<p>你觉得http2.0下使用精灵图还有必要吗</p>
+<p>sass scss用过吗，有啥好处</p>
+<p>css选择器的优先级</p>
+<p>css权重有了解过吗？给了一段css代码，问哪个生效</p>
+<blockquote>
+<p>还问了一堆英文缩写，我一个都没听说过</p>
+</blockquote>
+<p>怼项目</p>
+<p>问爬虫的原理是什么</p>
+<p>爬虫的请求是怎么发的？</p>
+<p>线程池应该怎么维护</p>
+<blockquote>
+<p>？？？？？？</p>
+</blockquote>
+<p>cheerio是怎么解析html的</p>
+<p>能不能写一个正则表达式匹配span标签</p>
+<p><strong>代码题</strong></p>
+<p>对象的深拷贝，里面有复杂数据类型的</p>
+<p>判断一棵二叉树里是否有一条路径（从根到叶子节点）的和为某个值</p>
+<p>有了解一些前沿的前端技术吗</p>
+<p>反问环节</p>
+<p>说hr等会可能会联系一下。</p>
+<h2 id="hr面"><a href="#hr面" class="headerlink" title="hr面"></a>hr面</h2><blockquote>
+<p>总体来说hr小姐姐和和蔼</p>
+</blockquote>
+<p>问了一些有关自己的信息、性格、爱好等</p>
+<p>缺点优点，怎么克服</p>
+<p>选三个朋友，说他们的吸引我的点</p>
+<p>面试完会做复盘吗，怎么做的</p>
+<p>到目前为止的低谷期和巅峰期。</p>
 
       
       <!-- reward -->
@@ -212,14 +270,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/05/25/Vue%E4%B8%AD%E7%9A%84%E6%8F%92%E6%A7%BD/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/06/02/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8%E9%9D%A2%E7%BB%8F/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E7%BB%8F/" rel="tag">面经</a></li></ul>
 
 
     </footer>
@@ -230,19 +288,10 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/06/02/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8%E9%9D%A2%E7%BB%8F/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            字节跳动面经
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/05/21/%E5%BE%AA%E7%8E%AF%E8%BE%93%E5%87%BA%E9%97%AE%E9%A2%98/" class="article-nav-link">
+      <a href="/2020/05/25/Vue%E4%B8%AD%E7%9A%84%E6%8F%92%E6%A7%BD/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">循环输出问题</div>
+        <div class="article-nav-title">Vue中的插槽</div>
       </a>
     
   </nav>

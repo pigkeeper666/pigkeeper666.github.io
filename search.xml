@@ -1097,4 +1097,114 @@
         <tag>JavaScript</tag>
       </tags>
   </entry>
+  <entry>
+    <title>字节跳动面经</title>
+    <url>/2020/06/02/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8%E9%9D%A2%E7%BB%8F/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>字节面试一共两天。不得不说，效率是真的高！</p>
+<p>一面二面同一天。三面hr同一天。许愿offer！！我把能想起来的尽量写下来！</p>
+</blockquote>
+<h2 id="字节一面"><a href="#字节一面" class="headerlink" title="字节一面"></a>字节一面</h2><p>自我介绍</p>
+<p>项目亮点</p>
+<p>http1.1长连接</p>
+<p>http2.0的新特性</p>
+<p>https握手的具体过程，详细说说</p>
+<p>https哪里体现了非对称哪里对称，为什么不全用非对称。</p>
+<p>sessionStorage和localStorage</p>
+<p>cookie有哪些字段，有哪些用处</p>
+<p>css flex的三个值具体解释一下什么意思</p>
+<p>事件循环</p>
+<p>事件循环代码提问输出，讲讲为什么</p>
+<a id="more"></a>
+
+<p><strong>代码题：</strong></p>
+<p>垂直居中的若干种方法（能不能写一个能兼容以前的版本）</p>
+<p>三栏布局，两边固定中间自适应，多写几种方法</p>
+<p>手写一个类似解析虚拟DOM的render函数</p>
+<p>反问环节</p>
+<p>问是否能够继续面试</p>
+<h2 id="字节二面"><a href="#字节二面" class="headerlink" title="字节二面"></a>字节二面</h2><p>自我介绍</p>
+<p>继续怼三栏布局，flex又问了一遍</p>
+<p>重排和重绘，什么时候会重排？只有增添DOM，改宽高才会重排吗？下拉滚动条会吗？</p>
+<p>事件循环</p>
+<p>事件循环代码提问输出，讲讲为什么</p>
+<blockquote>
+<p>事件循环和flex这么喜欢问诶！</p>
+</blockquote>
+<p>怼项目</p>
+<p>怼项目</p>
+<p>怼项目</p>
+<p>问爬虫</p>
+<p><strong>代码题：</strong></p>
+<p>跳台阶的变种题（动态规划），要求解释dp[0]的含义</p>
+<p>数组去重：一个数组包括各种数据类型的数据，字符串数字NaN这些，要求去重</p>
+<p>反问环节</p>
+<p>约三面，但是leader太忙，于是约到了第二天</p>
+<blockquote>
+<p>等待的时间也太紧张了！！</p>
+</blockquote>
+<h2 id="字节三面"><a href="#字节三面" class="headerlink" title="字节三面"></a>字节三面</h2><blockquote>
+<p>这一面是leader面，问的比较￥#%……#￥%#</p>
+</blockquote>
+<p>自我介绍</p>
+<p>写一个数据库查找语句</p>
+<p>是否自己为数据库进行分表设计，怎么设计的</p>
+<p>如果一个表需要频繁的被CRUD，怎么办</p>
+<p>如果说库很大，怎样才能提高效率</p>
+<p>有学过分布式这些吗？</p>
+<p>索引有深入了解吗？</p>
+<p>node怎么连接数据库的</p>
+<p>有学过JAVA C++这些吗，说一下</p>
+<p>ORM了解吗，说一下</p>
+<p>对负载均衡是怎么理解的</p>
+<blockquote>
+<p>我真的面的是前端吗</p>
+</blockquote>
+<p>TCP与UDP</p>
+<p>从输入url到显示的过程</p>
+<p>着重于问url到后端以后怎么进行处理</p>
+<p>DNS</p>
+<p>Ngnix的配置</p>
+<p>项目是怎么进行部署上线的</p>
+<p>查看进程号的Linux命令是什么</p>
+<blockquote>
+<p>我要炸了</p>
+</blockquote>
+<p>浏览器的缓存措施</p>
+<p>跨域方案</p>
+<p>你觉得http2.0下使用精灵图还有必要吗</p>
+<p>sass scss用过吗，有啥好处</p>
+<p>css选择器的优先级</p>
+<p>css权重有了解过吗？给了一段css代码，问哪个生效</p>
+<blockquote>
+<p>还问了一堆英文缩写，我一个都没听说过</p>
+</blockquote>
+<p>怼项目</p>
+<p>问爬虫的原理是什么</p>
+<p>爬虫的请求是怎么发的？</p>
+<p>线程池应该怎么维护</p>
+<blockquote>
+<p>？？？？？？</p>
+</blockquote>
+<p>cheerio是怎么解析html的</p>
+<p>能不能写一个正则表达式匹配span标签</p>
+<p><strong>代码题</strong></p>
+<p>对象的深拷贝，里面有复杂数据类型的</p>
+<p>判断一棵二叉树里是否有一条路径（从根到叶子节点）的和为某个值</p>
+<p>有了解一些前沿的前端技术吗</p>
+<p>反问环节</p>
+<p>说hr等会可能会联系一下。</p>
+<h2 id="hr面"><a href="#hr面" class="headerlink" title="hr面"></a>hr面</h2><blockquote>
+<p>总体来说hr小姐姐和和蔼</p>
+</blockquote>
+<p>问了一些有关自己的信息、性格、爱好等</p>
+<p>缺点优点，怎么克服</p>
+<p>选三个朋友，说他们的吸引我的点</p>
+<p>面试完会做复盘吗，怎么做的</p>
+<p>到目前为止的低谷期和巅峰期。</p>
+]]></content>
+      <tags>
+        <tag>面经</tag>
+      </tags>
+  </entry>
 </search>
